@@ -16,9 +16,17 @@ class Player:
         self.numplayed = 0  # an integer that changes every turn depending on how many cards the player played
         self.log = logfile
         self.frame = None
+        self.label = None
+        self.handnumlabel = None
 
     def createFrame(self, window, column):
-        pass
+        """Create a frame for displaying player stats"""
+        self.frame = Frame(window)
+        self.frame.grid(column=column)
+        self.label = Label(self.frame,text=self.name)
+        self.label.grid()
+        self.handnumlabel = Label(self.frame, text=self.gethandlength())
+        self.handnumlabel.grid()
 
     def getnumplayed(self):
         """Accessor method for the number of cards played"""
