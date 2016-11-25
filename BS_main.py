@@ -9,8 +9,8 @@ This program allows human and/or computer players to play the card game BS"""
 
 # imports
 from world import *
-
-from Final_project.player import *
+from deck import *
+from player import *
 from tkinter_for_cards import *
 
 # global variables
@@ -18,7 +18,7 @@ debug = False
 debug2 = False
 debug3 = False
 unit_tests = False
-debug4 = True
+debug4 = False
 
 # functions
 def y_or_n (msg, default):

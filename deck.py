@@ -1,6 +1,5 @@
 from random import shuffle
-
-from Final_project.player import *
+from player import *
 from card import *
 
 
