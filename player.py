@@ -40,14 +40,6 @@ class Player:
         """Accessor method to return if the player lied"""
         return self.honesty
 
-    def showHand(self):
-        """Opens a window which shows the player their hand (Ace of clubs, 5 of Spades, etc.)"""
-        root = Tk()
-        msg = Message(root, text=self.hand)
-        msg.config(bg='white', font=('times', 24))
-        msg.pack()
-        root.mainloop()
-
     def sortHand(self):
         """Sorts the player's hand by numerical order"""
         if self.verbose:
@@ -144,80 +136,6 @@ class Player:
                 if self.log is not None:
                     self.log.write(self.name + ' enabled a checkbox: %s\n' % self.tkhand[idx][0])
 
-    def selectHand(self, turnNum):  # turnNum is the number (4, 11, etc.) the player must play this turn
-        """Given a player and the number that the player must player this turn, allow the player to play 1 to 4 cards and record whether the player lied or not"""
-        if self.verbose:
-            print(self.name, 'Selecting hand.')
-        played = []
-        self.pile = []
-        if type(turnNum) is int:
-            turnCard = numToStr(turnNum)
-        else:
-            print("Error. The value for the turn number is not an integer.")
-            return None
-        """for j in range(numPlayed):  # for each card the player wants to select, a new window is opened;
-                                        # the player chooses one card at a time
-            root = Tk()
-            v = IntVar()
-            # creates a label telling the player which number they must play this round
-            Label(root, text="Your turn to play " + roundCard, justify=LEFT, padx=20).pack()
-            for i in range(1,14):
-                # counts how many cards with the current value are in the hand by creating a list and finding its length
-                numCount = len([x for x in self.hand if x.number == i])
-                if numCount > 0:  # if the player has at least one card of the current value
-                    txt = numToStr(i) + ": " + str(numCount)
-                    Radiobutton(root, text = txt, variable=v, value= i).pack(anchor=W)
-            mainloop()"""
-            # Button(root, text = "Submit", command = submit)
-        input(self.name + ", you need to play %ss. Press 'Enter' to see your hand and continue." %turnCard).strip()
-        print('Your hand:', self.hand)
-        numPlayed = input("How many cards do you want to play? Enter a number from 1 to 4: ").strip()
-        # move into a function validatecard()
-        if self.verbose:
-            print(self.name, 'Validating card')  # why does this happen before the numPlayed line?
-        try:
-            numPlayed = int(numPlayed)
-        except ValueError:
-            print("Invalid input. Number of cards to play set to default, 1.")
-            correct_input = False
-            numPlayed = 1
-        if not 1 <= numPlayed <= 4:
-            print("Invalid input. Number of cards to play set to default, 1.")
-            correct_input = False
-            numPlayed = 1
-        if numPlayed > len(self.hand):
-            print("You don't have that many cards. Number of cards to play set to default, 1.")
-        for i in range(numPlayed):
-            cardPlay = input("What card do you want to play? -->").strip()
-            while True:  # wait this looks wrong
-                if self.findCard(nameToCardName(cardPlay)) is not False:
-                    break
-                cardPlay = input("You don't have that card. Try again. What card do you want to play? -->").strip()
-            cardPlayed = self.findCard(nameToCardName(cardPlay))
-            if cardPlayed._number == int(turnNum):
-                honest = True
-            else:
-                honest = False
-            if self.verbose:
-                print(self.name, 'Honesty is', honest)
-                print(self.name, 'Card played is', cardPlayed)
-            self.pile.append([cardPlayed, turnCard, honest])
-            if self.verbose:
-                print(self.name, 'Pile is', self.pile)
-            # debugging
-            print(self.findCard(cardPlayed))
-            self.hand.remove(self.findCard(cardPlayed))  # why isn't find card working
-            print('Your hand:', self.hand)
-        print("\n" * 12)  # prints blank lines so the next player doesn't see what was actually played
-        # prints how many cards the player played and their alleged value
-        message = self.name + " played " + numToWord(numPlayed) + " " + turnCard
-        if numPlayed > 1:  # if the player played more than one card, make the number word plural
-            message = message + "s"
-        print(message)
-        # self.pile.extend(played)  # why does extend work and append doesn't?
-        if self.verbose:
-            print(self.name, 'Pile is now', self.pile)
-
     def __str__(self):
         """String representation of player is the player name and number of cards"""
         return self.name + ', ' + str(len(self.hand)) + ' cards'
@@ -266,15 +184,6 @@ class Player:
         if self.log is not None:
             self.log.write(self.name + " Didn't find %s\n" % name)
         return False
-
-    def findCardIdx(self, name):
-        """finds the index of a specific card, e.g, Ace of Spades"""
-        if self.verbose:
-            print(self.name, 'Searching hand for index of', name)
-        try:
-            return self.hand.index(name)
-        except ValueError:
-            print("Error, %s not in hand." % name)
 
 class Cpu(Player):  # a cpu is still a player, so it inherits from the Player class, but because it's not human, it works differently
     # __init__ overrides the parent class because the cpu needs some attributes that human players don't need
