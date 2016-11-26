@@ -54,6 +54,8 @@ class Player:
         """Sorts the player's hand by numerical order"""
         if self.verbose:
             print(self.name, 'Sorting hand.')
+        if self.log is not None:
+            self.log.write(self.name + ' Sorting hand\n')
         self.hand.sort(key=lambda x: x._number)
 
     def gethandlength(self):
@@ -64,11 +66,20 @@ class Player:
             self.log.write(self.name + " Checking the length of hand.\n")
         return len(self.hand)
 
-    def tkConfigureShowHand(self,state):
+    def tkConfigureShowHand(self, state):
         """Enables or disables the player's 'show hand' button"""
+        if self.verbose:
+            print(self.name, "Changing the state of the 'show hand' button to", state)
+        if self.log is not None:
+            self.log.write(self.name + " Changing the state of the 'show hand' button to " + str(state) + '\n')
         self.showhandbutton.config(state=state)
 
     def BSConfig(self, state):
+        """Enables or disables the buttons allowing the user to call BS or not"""
+        if self.verbose:
+            print(self.name, "Changing the state of the BS buttons to", state)
+        if self.log is not None:
+            self.log.write(self.name + ' Changing the state of the BS buttons to ' + str(state) + '\n')
         self.bsbutton.config(state=state)
         self.notbsbutton.config(state=state)
 
@@ -118,12 +129,11 @@ class Player:
                 numplayed += 1
                 if self.tkhand[idx][0]._number != self.world.getTurnNum:
                     if self.verbose:
-                        print(self.name, 'found a bluff card.')
+                        print(self.name, 'found a bluff card:', self.tkhand[idx][0])
                     if self.log is not None:
-                        self.log.write(self.name + ' found a bluff card.\n')
+                        self.log.write(self.name + ' found a bluff card: %s\n' % self.tkhand[idx][0])
                     self.honesty = False
         self.numplayed = numplayed
-        # self.tkhand = []
         self.cardframe.destroy()
 
     def checkHand(self):

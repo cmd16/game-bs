@@ -21,13 +21,19 @@ class World:
 
     def setCurrentPlayer(self, player):
         """Set the current player"""
+        if self.log is not None:
+            self.log.write("Setting the current player to " + player.name + '\n')
         self.currentplayer = player
 
     def getCurrentPlayer(self):
         """Return the current player"""
+        if self.log is not None:
+            self.log.write("Returning the current player\n")
         return self.currentplayer
 
     def createWindow(self):
+        if self.log is not None:
+            self.log.write("Creating the world's window\n")
         self._window = Tk()
         self._window.title('Playing BS')
         #from BS_main import gameBs
@@ -39,17 +45,22 @@ class World:
         self._window.mainloop()
 
     def startGame(self):
-        print('starting game')
+        if self.log is not None:
+            self.log.write("Starting game\n")
         self.start.grid_forget()
         from global_functions import gameBs
         gameBs(self, logfile=self.log)
 
     def updateTurnNum(self, turn_num):
         """Update the turn number"""
+        if self.log is not None:
+            self.log.write("Updating turn number\n")
         self._turn_num = turn_num
 
     def getTurnNum(self):
         """Accessor method to return turn_num"""
+        if self.log is not None:
+            self.log.write("Returning turn_num\n")
         return self._turn_num
 
     def getPile(self):
@@ -60,6 +71,7 @@ class World:
 
     def emptyPile(self, player):
         """Takes all the cards from the pile and gives them to the player"""
+        self.log.write('Emptying the pile and giving all the cards to ' + player.name + '\n')
         player.addCards(self.getPile())
         self._pile = []
 
@@ -124,7 +136,7 @@ class World:
     def deal(self):
         """Deals all the deck's cards to all the players."""
         if self.log is not None:
-            self.log.write('Dealing cards to %s' % self._playerlist)
+            self.log.write('Dealing cards to %s\n' % self._playerlist)
         self._deck.deal(self._playerlist)
 
     def playCards(self, player, card_seq):
