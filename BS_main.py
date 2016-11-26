@@ -72,6 +72,7 @@ def gameBs(logfile=None):
     root.mainloop()
     thisWorld._deck.addAllCards()
     thisWorld.deal()
+    thisWorld.createWindow()
     for player in thisWorld.getPlayerList():
         if player.findCard("Ace of Clubs") is not False:
             currentPlayer = player

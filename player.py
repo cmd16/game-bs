@@ -24,12 +24,13 @@ class Player:
     def createFrame(self, window, column):
         """Create a frame for displaying player stats"""
         self.frame = Frame(window)
-        self.frame.grid(column=column)
+        self.frame.grid(column=column,row=0)
         self.label = Label(self.frame,text=self.name)
         self.label.grid()
-        self.handnumlabel = Label(self.frame, text=self.gethandlength())
+        self.handnumlabel = Label(self.frame, text=str(self.gethandlength()) + ' cards')
         self.handnumlabel.grid()
         self.showhandbutton = Button(self.frame, text="Show hand", command=lambda: self.tkSelectHand(), state=DISABLED)
+        self.showhandbutton.grid()
 
     def getnumplayed(self):
         """Accessor method for the number of cards played"""

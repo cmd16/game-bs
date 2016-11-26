@@ -12,16 +12,23 @@ class World:
         self._playerlist = []
         self._bscalled = False  # this is basically just a global variable
         self._pile = []
-        self.turn_num = 0
+        self._turn_num = 0
         self.log.write('Created a World object.\n')
+        self._window = None
+
+    def createWindow(self):
+        self._window = Tk()
+        for idx in range(len(self._playerlist)):
+            self._playerlist[idx].createFrame(self._window, idx)
+        self._window.mainloop()
 
     def updateTurnNum(self, turn_num):
         """Update the turn number"""
-        self.turn_num = turn_num
+        self._turn_num = turn_num
 
     def getTurnNum(self):
         """Accessor method to return turn_num"""
-        return self.turn_num
+        return self._turn_num
 
     def getPile(self):
         """Accessor method to return the pile"""
