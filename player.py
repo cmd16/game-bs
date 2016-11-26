@@ -57,6 +57,10 @@ class Player:
             self.log.write(self.name + " Checking the length of hand.\n")
         return len(self.hand)
 
+    def tkConfigureShowHand(self,state):
+        """Enables or disables the player's 'show hand' button"""
+        self.showhandbutton.config(state=state)
+
     def tkShowHand(self, turn_num):
         """Creates a window, tells the player what they need to play and waits for them to click a button to show their hand."""
         if self.verbose:

@@ -185,11 +185,12 @@ def gameBs(logfile=None):
         for turn_num in range(1, 14):
             thisWorld.updateTurnNum(turn_num)
             thisWorld.resetbs()
-            currentPlayer.tkShowHand(turn_num)
+            currentPlayer.tkConfigureShowHand(NORMAL)
             askBs(currentPlayer, turn_num, thisWorld)
             if currentPlayer.gethandlength() == 0:
                 print(currentPlayer.name, "wins!")
                 sys.exit(0)
+            currentPlayer.tkConfigureShowHand(DISABLED)
             currentPlayer = thisWorld.getNextPlayer(currentPlayer)
     log.close()
 
