@@ -1,4 +1,4 @@
-"""Catherine DeJager
+"""
 This program allows human and/or computer players to play the card game BS"""
 # STUFF TO FIX: Why do windows pop up weird? Create a stats window. Get PIL working to show cards. Create AIs.
 
@@ -63,43 +63,49 @@ def askBs(current, turn_num, world):
             break
         this_player = world.getNextPlayer(this_player)
 
-def gameBs(logfile=None):
-    """The main code to play the game BS"""
-    log = open(logfile, 'w')
-    thisWorld = World(logfile=log)
+def setUpGame(logfile=None):
+    """The code to set up the game"""
+    #log = open(logfile, 'w')
+    thisWorld = World(logfile=logfile) # change to log
     root = Tk()
     setupwindow = SetupWidget(world=thisWorld, master=root)
     root.mainloop()
     thisWorld._deck.addAllCards()
     thisWorld.deal()
     thisWorld.createWindow()
-    for player in thisWorld.getPlayerList():
+
+def gameBs(world,logfile=None):
+    """The main code to play the game BS"""
+    for player in world.getPlayerList():
         if player.findCard("Ace of Clubs") is not False:
             currentPlayer = player
             print("The player with the Ace of Clubs, %s, goes first." % currentPlayer.name)
             break
     else:  # if somehow no player has the Ace of Clubs
-        currentPlayer = thisWorld.getPlayerList()[0]
+        currentPlayer = world.getPlayerList()[0]
     while True:
         for turn_num in range(1, 14):
-            thisWorld.updateTurnNum(turn_num)
-            thisWorld.resetbs()
+            world.updateTurnNum(turn_num)
+            world.resetbs()
             currentPlayer.tkConfigureShowHand(NORMAL)
-            askBs(currentPlayer, turn_num, thisWorld)
+            askBs(currentPlayer, turn_num, world)
             if currentPlayer.gethandlength() == 0:
                 print(currentPlayer.name, "wins!")
                 sys.exit(0)
             currentPlayer.tkConfigureShowHand(DISABLED)
-            currentPlayer = thisWorld.getNextPlayer(currentPlayer)
-    log.close()
+            currentPlayer = world.getNextPlayer(currentPlayer)
+    #log.close() # fix later
 
 # main code
-gameBs(logfile='test.txt')
+logfile = open('test.txt','w')
+setUpGame(logfile=logfile) # ERROR
+#gameBs(logfile='test.txt')
+logfile.close()
 if unit_tests:
-    thisWorld = World()
+    world = World()
     root = Tk()
-    setupwindow = SetupWidget(world=thisWorld, master=root)
+    setupwindow = SetupWidget(world=world, master=root)
     root.mainloop()
-    thisWorld._deck.addAllCards()
-    thisWorld.deal()
-    thisWorld.getPlayerList()[0].tkSelectHand(2)
+    world._deck.addAllCards()
+    world.deal()
+    world.getPlayerList()[0].tkSelectHand(2)
