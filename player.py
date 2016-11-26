@@ -71,7 +71,7 @@ class Player:
         root.title('Selecting cards.')
         label = Label(root, text=self.name + ", you need to play %ss." % numToStr(turn_num))
         label.pack()
-        next = Button(root, text="Show hand", command=lambda: self.tkSelectHand(turn_num))
+        next = Button(root, text="Show hand", command=lambda: self.tkSelectHand())
         next.pack()  # later implement pack_forget()
         root.mainloop()
 
