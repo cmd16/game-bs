@@ -20,6 +20,8 @@ class Player:
         self.handnumlabel = None
         self.showhandbutton = None
         self.cardframe = None
+        self.bsbutton = None
+        self.notbsbutton = None
 
     def createFrame(self, window, column):
         """Create a frame for displaying player stats"""
@@ -29,8 +31,12 @@ class Player:
         self.label.grid()
         self.handnumlabel = Label(self.frame, text=str(self.gethandlength()) + ' cards')
         self.handnumlabel.grid(row=2)
+        self.bsbutton = Button(self.frame, text='Call BS', command=checkBs, state=DISABLED)
+        self.bsbutton.grid(row=3)
+        self.notbsbutton = Button(self.frame, text="Don't call BS", state=DISABLED)
+        self.notbsbutton.grid(row=4)
         self.showhandbutton = Button(self.frame, text="Show hand", command=lambda: self.tkSelectHand(), state=DISABLED)
-        self.showhandbutton.grid(row=3)
+        self.showhandbutton.grid(row=5)
 
     def getnumplayed(self):
         """Accessor method for the number of cards played"""
@@ -62,6 +68,10 @@ class Player:
         """Enables or disables the player's 'show hand' button"""
         self.showhandbutton.config(state=state)
 
+    def BSConfig(self, state):
+        self.bsbutton.config(state=state)
+        self.notbsbutton.config(state=state)
+
     def tkShowHand(self, turn_num):
         """Creates a window, tells the player what they need to play and waits for them to click a button to show their hand."""
         if self.verbose:
@@ -79,6 +89,7 @@ class Player:
     def tkSelectHand(self):
         """Shows the player's hand and allows the player to select up to 4 cards."""
         self.cardframe = Frame(self.frame)
+        self.cardframe.grid()
         self.tkhand = [[x, IntVar()] for x in self.hand]
         if self.verbose:
             print(self.name, ' tk hand is ', self.tkhand)
@@ -87,9 +98,9 @@ class Player:
         for idx in range(len(self.tkhand)):
             self.tkhand[idx].append(Checkbutton(self.cardframe, text=str(self.tkhand[idx][0]), variable=self.tkhand[idx][1],
                                                 command=self.checkHand))
-            self.tkhand[idx][2].pack()
+            self.tkhand[idx][2].grid()
         submit = Button(self.cardframe, text="Submit", command=self.playCards)
-        submit.pack()
+        submit.grid()
 
     def playCards(self):
         """Play cards into the world's pile. Check if the player lied or not and record that info. Also record how many

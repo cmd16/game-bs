@@ -22,47 +22,6 @@ unit_tests = False
 debug4 = False
 debugsetup = True
 
-def checkBs(defendant, prosecutor, world, root):
-    """Checks whether the accused player was lying or not and moves all the cards in the pile to the appropriate player."""
-    world.calledbs()
-    if defendant.getHonesty():
-        world.emptyPile(prosecutor)
-        print("%s was telling the truth! The cards from the pile have been added to %s's hand." % (
-        defendant.name, prosecutor.name))
-    else:
-        world.emptyPile(defendant)
-        print("%s was lying! The cards from the pile have been added to %s's hand." % (defendant.name, defendant.name))
-    root.destroy()
-
-def askBs(current, turn_num, world):
-    """Loop through the array of players and ask each player if they call BS. If a player says yes, call the checkBS function."""
-    this_player = world.getNextPlayer(current)  # create a variable to keep track of which player to ask and initialize it to the next player after the current player
-    if debug3:
-        print(current.name)
-        print(numToWord(current.numplayed))
-        print(numToStr(turn_num))
-    message = current.name + " played " + numToWord(current.numplayed) + " " + numToStr(turn_num)
-    if current.numplayed > 1:  # if the player played more than one card, make the number word plural
-        message += "s"
-    for x in range(world.getNumPlayers() - 1):
-        """if players[x] == currentPlayer:
-            print("skipped")
-            continue"""
-        message = "%s has %d cards and there are %d cards in the pile. %s, do you call bs?" % (current.name,
-                                                current.gethandlength(), len(world.getPile()), this_player.name)
-        root = Tk()
-        # figure out how to close the window, issue where you have to press yes
-        ask = Confirm(master=root, message=message, ycommand=lambda: checkBs(current, this_player, world, root),
-                      ncommand=root.destroy)
-        root.mainloop()
-        '''if y_or_n("%s has %d cards and there are %d cards in the pile. %s, do you call bs?" %
-                          (current.name, current.gethandlength(),
-                           len(current.pile), this_player.name), False):  # ask the next player if they call bs
-            checkBs(current, this_player, turn)  # fix the get next player
-            break'''
-        if world.getbs():
-            break
-        this_player = world.getNextPlayer(this_player)
 
 def setUpGame(logfile=None):
     """The code to set up the game"""

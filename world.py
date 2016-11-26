@@ -17,6 +17,15 @@ class World:
             self.log.write('Created a World object.\n')
         self._window = None
         self.start = None
+        self.currentplayer = None
+
+    def setCurrentPlayer(self, player):
+        """Set the current player"""
+        self.currentplayer = player
+
+    def getCurrentPlayer(self):
+        """Return the current player"""
+        return self.currentplayer
 
     def createWindow(self):
         self._window = Tk()
