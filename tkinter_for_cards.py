@@ -52,7 +52,7 @@ class SetupWidget:
         self._addplayerbutton = Button(self._window, text="Add player", command=self.createPlayer) #later disable
         self._addplayerbutton.pack(side=BOTTOM)
         self._invalidlabel = Label(self._window)
-        self._validlabel = Label(self._window, text="Player added.")
+        self._validlabel = Label(self._window)
         self._difficultyentry = IntVar()
         self._difficultyslider = Scale(self._window, variable=self._difficultyentry, label='Difficulty level:',
                                        orient=HORIZONTAL, from_=1, to=5, sliderlength=15)
@@ -81,6 +81,7 @@ class SetupWidget:
                 self._invalidlabel.pack()
                 return
         self._addplayerbutton['state'] = NORMAL
+        self._validlabel.config(text='Player added: ' + self._playername.get())
         self._validlabel.pack()
         if self._cpuentry.get() == 1:
             self._world.createPlayer(self._playername.get(), self._riskentry.get(), self._pbentry.get(), self._verboseentry.get())

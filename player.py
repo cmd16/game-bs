@@ -1,5 +1,5 @@
+# stuff to fix: get from asking Bs to next turn
 from tkinter import *
-
 from global_functions import *
 
 debug = False
