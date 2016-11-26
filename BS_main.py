@@ -183,6 +183,7 @@ def gameBs(logfile=None):
         currentPlayer = thisWorld.getPlayerList()[0]
     while True:
         for turn_num in range(1, 14):
+            thisWorld.updateTurnNum(turn_num)
             thisWorld.resetbs()
             currentPlayer.tkShowHand(turn_num)
             askBs(currentPlayer, turn_num, thisWorld)

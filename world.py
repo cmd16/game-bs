@@ -19,6 +19,10 @@ class World:
         """Update the turn number"""
         self.turn_num = turn_num
 
+    def getTurnNum(self):
+        """Accessor method to return turn_num"""
+        return self.turn_num
+
     def getPile(self):
         """Accessor method to return the pile"""
         self.log.write('Returning the pile.\n')
