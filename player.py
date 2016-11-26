@@ -29,7 +29,7 @@ class Player:
         self.label.grid()
         self.handnumlabel = Label(self.frame, text=self.gethandlength())
         self.handnumlabel.grid()
-        self.showhandbutton = Button(self.frame, text="Show hand", command=lambda: self.tkSelectHand(turn_num), state=DISABLED)
+        self.showhandbutton = Button(self.frame, text="Show hand", command=lambda: self.tkSelectHand(), state=DISABLED)
 
     def getnumplayed(self):
         """Accessor method for the number of cards played"""
@@ -71,7 +71,7 @@ class Player:
         next.pack()  # later implement pack_forget()
         root.mainloop()
 
-    def tkSelectHand(self, turn_num):
+    def tkSelectHand(self):
         """Shows the player's hand and allows the player to select up to 4 cards."""
         self.cardframe = Frame(self.frame)
         self.tkhand = [[x, IntVar()] for x in self.hand]
@@ -83,10 +83,10 @@ class Player:
             self.tkhand[idx].append(Checkbutton(self.cardframe, text=str(self.tkhand[idx][0]), variable=self.tkhand[idx][1],
                                                 command=self.checkHand))
             self.tkhand[idx][2].pack()
-        submit = Button(self.cardframe, text="Submit", command=lambda: self.playCards(turn_num))
+        submit = Button(self.cardframe, text="Submit", command=self.playCards)
         submit.pack()
 
-    def playCards(self, turn_num):
+    def playCards(self):
         """Play cards into the world's pile. Check if the player lied or not and record that info. Also record how many
         cards were played."""
         numplayed = 0
@@ -100,7 +100,7 @@ class Player:
                 self.world._pile.append(self.tkhand[idx][0])
                 self.hand.remove(self.tkhand[idx][0])
                 numplayed += 1
-                if self.tkhand[idx][0]._number != turn_num:
+                if self.tkhand[idx][0]._number != self.world.getTurnNum:
                     if self.verbose:
                         print(self.name, 'found a bluff card.')
                     if self.log is not None:
