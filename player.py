@@ -18,6 +18,8 @@ class Player:
         self.frame = None
         self.label = None
         self.handnumlabel = None
+        self.showhandbutton = None
+        self.cardframe = None
 
     def createFrame(self, window, column):
         """Create a frame for displaying player stats"""
@@ -27,6 +29,7 @@ class Player:
         self.label.grid()
         self.handnumlabel = Label(self.frame, text=self.gethandlength())
         self.handnumlabel.grid()
+        self.showhandbutton = Button(self.frame, text="Show hand", command=lambda: self.tkSelectHand(turn_num), state=DISABLED)
 
     def getnumplayed(self):
         """Accessor method for the number of cards played"""
@@ -64,25 +67,26 @@ class Player:
         root.title('Selecting cards.')
         label = Label(root, text=self.name + ", you need to play %ss." % numToStr(turn_num))
         label.pack()
-        next = Button(root, text="Show hand", command=lambda: self.tkSelectHand(turn_num, root))
+        next = Button(root, text="Show hand", command=lambda: self.tkSelectHand(turn_num))
         next.pack()  # later implement pack_forget()
         root.mainloop()
 
-    def tkSelectHand(self, turn_num, root):
+    def tkSelectHand(self, turn_num):
         """Shows the player's hand and allows the player to select up to 4 cards."""
+        self.cardframe = Frame(self.frame)
         self.tkhand = [[x, IntVar()] for x in self.hand]
         if self.verbose:
             print(self.name, ' tk hand is ', self.tkhand)
         if self.log is not None:
             self.log.write(self.name + ' tk hand is %s\n' % self.tkhand)
         for idx in range(len(self.tkhand)):
-            self.tkhand[idx].append(Checkbutton(root, text=str(self.tkhand[idx][0]), variable=self.tkhand[idx][1],
+            self.tkhand[idx].append(Checkbutton(self.cardframe, text=str(self.tkhand[idx][0]), variable=self.tkhand[idx][1],
                                                 command=self.checkHand))
             self.tkhand[idx][2].pack()
-        submit = Button(root, text="Submit", command=lambda: self.playCards(turn_num, root))
+        submit = Button(self.cardframe, text="Submit", command=lambda: self.playCards(turn_num))
         submit.pack()
 
-    def playCards(self, turn_num, root):
+    def playCards(self, turn_num):
         """Play cards into the world's pile. Check if the player lied or not and record that info. Also record how many
         cards were played."""
         numplayed = 0
@@ -104,7 +108,7 @@ class Player:
                     self.honesty = False
         self.numplayed = numplayed
         # self.tkhand = []
-        root.destroy()
+        self.cardframe.destroy()
 
     def checkHand(self):
         """Counts how many checkboxes are checked. Disables other checkboxes is 4 are checked, enables all checkboxes if
