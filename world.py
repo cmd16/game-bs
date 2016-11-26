@@ -12,7 +12,12 @@ class World:
         self._playerlist = []
         self._bscalled = False  # this is basically just a global variable
         self._pile = []
+        self.turn_num = 0
         self.log.write('Created a World object.\n')
+
+    def updateTurnNum(self, turn_num):
+        """Update the turn number"""
+        self.turn_num = turn_num
 
     def getPile(self):
         """Accessor method to return the pile"""
