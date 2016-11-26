@@ -84,3 +84,25 @@ def nameToCardName(name):
             return -1
         return nameNum + " of " + nameSuit
 
+
+def gameBs(world,logfile=None):
+    """The main code to play the game BS"""
+    for player in world.getPlayerList():
+        if player.findCard("Ace of Clubs") is not False:
+            currentPlayer = player
+            print("The player with the Ace of Clubs, %s, goes first." % currentPlayer.name)
+            break
+    else:  # if somehow no player has the Ace of Clubs
+        currentPlayer = world.getPlayerList()[0]
+    while True:
+        for turn_num in range(1, 14):
+            world.updateTurnNum(turn_num)
+            world.resetbs()
+            currentPlayer.tkConfigureShowHand(NORMAL)
+            askBs(currentPlayer, turn_num, world)
+            if currentPlayer.gethandlength() == 0:
+                print(currentPlayer.name, "wins!")
+                sys.exit(0)
+            currentPlayer.tkConfigureShowHand(DISABLED)
+            currentPlayer = world.getNextPlayer(currentPlayer)
+    #log.close() # fix later

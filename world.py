@@ -21,12 +21,19 @@ class World:
     def createWindow(self):
         self._window = Tk()
         self._window.title('Playing BS')
+        #from BS_main import gameBs
+        self.start = Button(self._window, text='start game',
+                            command=self.startGame)  # later fix this to include logfile
+        self.start.grid(row=0, column=1)
         for idx in range(len(self._playerlist)):
             self._playerlist[idx].createFrame(self._window, idx)
-        from BS_main import gameBs
-        self.start = Button(self._window, text='start game', command=lambda:gameBs(self)) # later fix this to include logfile
-        self.start.grid()
         self._window.mainloop()
+
+    def startGame(self):
+        print('starting game')
+        self.start.grid_forget()
+        from global_functions import gameBs
+        gameBs(self, logfile=self.log)
 
     def updateTurnNum(self, turn_num):
         """Update the turn number"""

@@ -20,6 +20,7 @@ debug2 = False
 debug3 = False
 unit_tests = False
 debug4 = False
+debugsetup = True
 
 def checkBs(defendant, prosecutor, world, root):
     """Checks whether the accused player was lying or not and moves all the cards in the pile to the appropriate player."""
@@ -65,6 +66,8 @@ def askBs(current, turn_num, world):
 
 def setUpGame(logfile=None):
     """The code to set up the game"""
+    if debugsetup:
+        print('setting up game')
     #log = open(logfile, 'w')
     thisWorld = World(logfile=logfile) # change to log
     root = Tk()
@@ -74,31 +77,10 @@ def setUpGame(logfile=None):
     thisWorld.deal()
     thisWorld.createWindow()
 
-def gameBs(world,logfile=None):
-    """The main code to play the game BS"""
-    for player in world.getPlayerList():
-        if player.findCard("Ace of Clubs") is not False:
-            currentPlayer = player
-            print("The player with the Ace of Clubs, %s, goes first." % currentPlayer.name)
-            break
-    else:  # if somehow no player has the Ace of Clubs
-        currentPlayer = world.getPlayerList()[0]
-    while True:
-        for turn_num in range(1, 14):
-            world.updateTurnNum(turn_num)
-            world.resetbs()
-            currentPlayer.tkConfigureShowHand(NORMAL)
-            askBs(currentPlayer, turn_num, world)
-            if currentPlayer.gethandlength() == 0:
-                print(currentPlayer.name, "wins!")
-                sys.exit(0)
-            currentPlayer.tkConfigureShowHand(DISABLED)
-            currentPlayer = world.getNextPlayer(currentPlayer)
-    #log.close() # fix later
 
 # main code
-logfile = open('test.txt','w')
-setUpGame(logfile=logfile) # ERROR
+logfile = open('test.txt', 'w')
+setUpGame(logfile=logfile)  # ERROR
 #gameBs(logfile='test.txt')
 logfile.close()
 if unit_tests:
