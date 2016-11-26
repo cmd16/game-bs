@@ -5,7 +5,7 @@ from global_functions import *
 debug = False
 class Player:
     """A class to represent players. Each player has a name and a hand."""
-    def __init__(self, name, verbose=False, world=None, logfile=None):
+    def __init__(self, name, verbose=False, world=None, logfile=open('test.txt','w')):
         """Players start out with a name and an empty hand."""
         self.name = name  # used in print so that the human player can tell who is who
         self.hand = []  # an empty list into which the player's cards will be added
@@ -31,7 +31,7 @@ class Player:
         self.label.grid()
         self.handnumlabel = Label(self.frame, text=str(self.gethandlength()) + ' cards')
         self.handnumlabel.grid(row=2)
-        self.bsbutton = Button(self.frame, text='Call BS', command=checkBs, state=DISABLED)
+        self.bsbutton = Button(self.frame, text='Call BS', command=lambda: checkBs(self.world.getCurrentPlayer(), self, self.world), state=DISABLED)
         self.bsbutton.grid(row=3)
         self.notbsbutton = Button(self.frame, text="Don't call BS", state=DISABLED)
         self.notbsbutton.grid(row=4)
@@ -127,7 +127,7 @@ class Player:
                 self.world._pile.append(self.tkhand[idx][0])
                 self.hand.remove(self.tkhand[idx][0])
                 numplayed += 1
-                if self.tkhand[idx][0]._number != self.world.getTurnNum:
+                if self.tkhand[idx][0]._number != self.world.getTurnNum():
                     if self.verbose:
                         print(self.name, 'found a bluff card:', self.tkhand[idx][0])
                     if self.log is not None:
@@ -135,6 +135,7 @@ class Player:
                     self.honesty = False
         self.numplayed = numplayed
         self.cardframe.destroy()
+        askBs(self.world.getCurrentPlayer(), self.world.getTurnNum(), self.world)
 
     def checkHand(self):
         """Counts how many checkboxes are checked. Disables other checkboxes is 4 are checked, enables all checkboxes if

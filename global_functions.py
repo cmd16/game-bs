@@ -130,7 +130,7 @@ def askBs(current, turn_num, world):
             break
         this_player = world.getNextPlayer(this_player)
 
-def checkBs(defendant, prosecutor, world, root):
+def checkBs(defendant, prosecutor, world):
     """Checks whether the accused player was lying or not and moves all the cards in the pile to the appropriate player."""
     world.calledbs()
     prosecutor.BSConfig(DISABLED)
@@ -141,4 +141,3 @@ def checkBs(defendant, prosecutor, world, root):
     else:
         world.emptyPile(defendant)
         print("%s was lying! The cards from the pile have been added to %s's hand." % (defendant.name, defendant.name))
-    root.destroy()

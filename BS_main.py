@@ -1,6 +1,6 @@
 """
 This program allows human and/or computer players to play the card game BS"""
-# STUFF TO FIX: Why do windows pop up weird? Create a stats window. Get PIL working to show cards. Create AIs.
+# STUFF TO FIX: Get from playing cards to asking BS, Create a stats window. Get PIL working to show cards. Create AIs.
 
 # Note: accessor methods for other programmers to access, in this context ok to access directly
 # Look into python properties
@@ -23,7 +23,7 @@ debug4 = False
 debugsetup = True
 
 
-def setUpGame(logfile=None):
+def setUpGame(logfile=open('test.txt','w')):
     """The code to set up the game"""
     if debugsetup:
         print('setting up game')

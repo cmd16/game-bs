@@ -4,7 +4,7 @@ from player import *
 
 class World:
     """A class to represent the world."""
-    def __init__(self, deck=None, logfile=None):
+    def __init__(self, deck=None, logfile=open('test.txt','w')):
         """Create a world object"""
         self.log = logfile
         if deck == None:  # if no Deck is given, create a Deck
