@@ -38,6 +38,16 @@ class Player:
         self.showhandbutton = Button(self.frame, text="Show hand", command=lambda: self.tkSelectHand(), state=DISABLED)
         self.showhandbutton.grid(row=5)
 
+    def updateWindow(self):
+        """Updates the label that shows how many cards the player has"""
+        if self.verbose:
+            print(self.name, "Updating the label that shows the number of cards")
+        if self.log is not None:
+            self.log.write(self.name + " Updating the label that shows the number of cards\n")
+        if self.frame is not None:
+            if self.gethandlength() > 0:
+                self.handnumlabel.config(text=str(self.gethandlength()) + ' cards')
+
     def getnumplayed(self):
         """Accessor method for the number of cards played"""
         if self.verbose:
@@ -135,6 +145,7 @@ class Player:
                     self.honesty = False
         self.numplayed = numplayed
         self.cardframe.destroy()
+        self.updateWindow()
         askBs(self.world.getCurrentPlayer(), self.world.getTurnNum(), self.world)
 
     def checkHand(self):
@@ -183,6 +194,7 @@ class Player:
             print(self.name, 'Hand is now', self.hand)
         if self.log is not None:
             self.log.write(self.name + ' Hand is now %s\n' % self.hand)
+        self.updateWindow()
 
     def removeCards(self, cardSeq):
         """Removes the given cards from the player's hand"""
@@ -196,6 +208,7 @@ class Player:
             print(self.name, 'Hand is now', self.hand)
         if self.log is not None:
             self.log.write(self.name + ' hand is now %s\n' % self.hand)
+        self.updateWindow()
 
     def findCard(self, name):
         """Searches the player's hand for the card of a given name. If the card is found, return the card."""
