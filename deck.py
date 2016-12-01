@@ -61,6 +61,6 @@ class Deck:
         """card_seq is a sequence (a list or tuple) of Card objects.  Add them to the end of the _cards list."""
         self._cards.extend(card_seq)
 
-    def numCards(self):
+    def getNumCards(self):
         """returns the number of cards in the deck"""
         return len(self._cards)

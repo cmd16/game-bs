@@ -16,8 +16,8 @@ class Player:
         self.numplayed = 0  # an integer that changes every turn depending on how many cards the player played
         self.log = logfile
         self.frame = None
-        self.label = None
-        self.handnumlabel = None
+        self.name_label = None
+        self.hand_len_label = None
         self.showhandbutton = None
         self.cardframe = None
         self.bsbutton = None
@@ -27,13 +27,15 @@ class Player:
         """Create a frame for displaying player stats"""
         self.frame = Frame(window)
         self.frame.grid(column=column, row=1)
-        self.label = Label(self.frame,text=self.name)
-        self.label.grid()
-        self.handnumlabel = Label(self.frame, text=str(self.gethandlength()) + ' cards')
-        self.handnumlabel.grid(row=2)
-        self.bsbutton = Button(self.frame, text='Call BS', command=lambda: checkBs(self.world.getCurrentPlayer(), self, self.world), state=DISABLED)
+        self.name_label = Label(self.frame, text=self.name)
+        self.name_label.grid()
+        self.hand_len_label = Label(self.frame, text=str(self.gethandlength()) + ' cards')
+        self.hand_len_label.grid(row=2)
+        self.bsbutton = Button(self.frame, text='Call BS', command=lambda: checkBs(self.world.getCurrentPlayer(), self,
+                                                                                   self.world), state=DISABLED)
         self.bsbutton.grid(row=3)
-        self.notbsbutton = Button(self.frame, text="Don't call BS", state=DISABLED)
+        self.notbsbutton = Button(self.frame, text="Don't call BS", command=lambda: askBs(self.world.getNextPlayer(self),
+                                                                                          self.world), state=DISABLED)
         self.notbsbutton.grid(row=4)
         self.showhandbutton = Button(self.frame, text="Show hand", command=lambda: self.tkSelectHand(), state=DISABLED)
         self.showhandbutton.grid(row=5)
@@ -46,7 +48,7 @@ class Player:
             self.log.write(self.name + " Updating the label that shows the number of cards\n")
         if self.frame is not None:
             if self.gethandlength() > 0:
-                self.handnumlabel.config(text=str(self.gethandlength()) + ' cards')
+                self.hand_len_label.config(text=str(self.gethandlength()) + ' cards')
 
     def getnumplayed(self):
         """Accessor method for the number of cards played"""
@@ -84,6 +86,17 @@ class Player:
             self.log.write(self.name + " Changing the state of the 'show hand' button to " + str(state) + '\n')
         self.showhandbutton.config(state=state)
 
+    def takeTurn(self):
+        """Gets player ready to take a turn"""
+        if self.verbose:
+            print(self.name, "Taking a turn")
+        if self.log is not None:
+            self.log.write(self.name + " Taking a turn")
+        self.world.setCurrentPlayer(self)
+        self.world.incTurnNum()
+        self.world.resetbs()
+        self.tkConfigureShowHand(NORMAL)  # may change this later
+
     def BSConfig(self, state):
         """Enables or disables the buttons allowing the user to call BS or not"""
         if self.verbose:
@@ -92,7 +105,12 @@ class Player:
             self.log.write(self.name + ' Changing the state of the BS buttons to ' + str(state) + '\n')
         self.bsbutton.config(state=state)
         self.notbsbutton.config(state=state)
+        if state == NORMAL:
+            for player in self.world.getPlayerList():
+                if player is not self:
+                    player.bsbutton.config(state=DISABLED)
 
+    """THIS METHOD NOT USED"""
     def tkShowHand(self, turn_num):
         """Creates a window, tells the player what they need to play and waits for them to click a button to show their hand."""
         if self.verbose:
@@ -118,7 +136,7 @@ class Player:
             self.log.write(self.name + ' tk hand is %s\n' % self.tkhand)
         for idx in range(len(self.tkhand)):
             self.tkhand[idx].append(Checkbutton(self.cardframe, text=str(self.tkhand[idx][0]), variable=self.tkhand[idx][1],
-                                                command=self.checkHand))
+                                                command=self.checkBoxes))
             self.tkhand[idx][2].grid()
         submit = Button(self.cardframe, text="Submit", command=self.playCards)
         submit.grid()
@@ -144,11 +162,12 @@ class Player:
                         self.log.write(self.name + ' found a bluff card: %s\n' % self.tkhand[idx][0])
                     self.honesty = False
         self.numplayed = numplayed
+        self.tkConfigureShowHand(DISABLED)
         self.cardframe.destroy()
         self.updateWindow()
-        askBs(self.world.getCurrentPlayer(), self.world.getTurnNum(), self.world)
+        askBs(self.world.getNextPlayer(self), self.world)
 
-    def checkHand(self):
+    def checkBoxes(self):
         """Counts how many checkboxes are checked. Disables other checkboxes is 4 are checked, enables all checkboxes if
         less than 4 are checked."""
         if self.verbose:
@@ -231,8 +250,8 @@ class Player:
 
 class Cpu(Player):  # a cpu is still a player, so it inherits from the Player class, but because it's not human, it works differently
     # __init__ overrides the parent class because the cpu needs some attributes that human players don't need
-    def __init__(self, name, difficulty, risk, pb, verbose, world=None):
-        super(Cpu, self).__init__(self)
+    def __init__(self, name, difficulty, risk, pb, verbose, world=None, logfile=None):
+        Player.__init__(self, name, verbose, world, logfile)
         self.name = name
         self.hand = []
         self.difficulty = difficulty  # an integer that represents how hard it is to beat the computer

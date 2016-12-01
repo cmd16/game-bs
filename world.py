@@ -4,7 +4,7 @@ from player import *
 
 class World:
     """A class to represent the world."""
-    def __init__(self, deck=None, logfile=open('test.txt','w')):
+    def __init__(self, deck=None, logfile=open('test.txt', 'w')):
         """Create a world object"""
         self.log = logfile
         if deck == None:  # if no Deck is given, create a Deck
@@ -12,7 +12,7 @@ class World:
         self._playerlist = []
         self._bscalled = False  # this is basically just a global variable
         self._pile = []
-        self._turn_num = 0
+        self._turn_num = 1
         if self.log is not None:
             self.log.write('Created a World object.\n')
         self._window = None
@@ -56,6 +56,13 @@ class World:
         if self.log is not None:
             self.log.write("Updating turn number\n")
         self._turn_num = turn_num
+
+    def incTurnNum(self):
+        """Increment the turn number"""
+        if self._turn_num == 13:
+            self._turn_num = 1
+        else:
+            self._turn_num += 1
 
     def getTurnNum(self):
         """Accessor method to return turn_num"""
@@ -148,12 +155,24 @@ class World:
 
     def getNextPlayer(self, player):
         """Get the next player from the list of players"""
+        # needs the parameter player because it's not always getting the next player from the current player
         if self.log is not None:
             self.log.write('Getting the next player.\n')
         try:
             index = self._playerlist.index(player)
-            if index < len(self._playerlist) - 1:
+            if index < len(self._playerlist) - 1:  # if the player is not the last player in the list
                 return self._playerlist[index + 1]
             return self._playerlist[0]
+        except ValueError:
+            print("Error: player does not exist.")
+
+    def getPreviousPlayer(self, player):
+        if self.log is not None:
+            self.log.write('Getting the previous player.\n')
+        try:
+            index = self._playerlist.index(player)
+            if index == 0:  # if the player is the first player in the list
+                return self._playerlist[-1]
+            return self._playerlist[index - 1]
         except ValueError:
             print("Error: player does not exist.")

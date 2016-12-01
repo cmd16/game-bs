@@ -1,4 +1,5 @@
 from tkinter import *
+import sys
 def y_or_n (msg, default):
     """a function that asks a yes or no question and returns true if yes, false if no, and the default value if neither yes nor no"""
     answer = input(msg).strip()[0].lower()  # this only looks at the first letter and makes it lowercase
@@ -86,8 +87,9 @@ def nameToCardName(name):
         return nameNum + " of " + nameSuit
 
 
-def gameBs(world,logfile=None):
+def gameBs(world, logfile=None):
     """The main code to play the game BS"""
+    # move into main loop
     for player in world.getPlayerList():
         if player.findCard("Ace of Clubs") is not False:
             world.setCurrentPlayer(player)
@@ -95,49 +97,59 @@ def gameBs(world,logfile=None):
             break
     else:  # if somehow no player has the Ace of Clubs
         world.setCurrentPlayer(world.getPlayerList()[0])
-    while True:
-        for turn_num in range(1, 14):
-            world.updateTurnNum(turn_num)
-            world.resetbs()
-            world.getCurrentPlayer().tkConfigureShowHand(NORMAL)
-            askBs(world.getCurrentPlayer(), turn_num, world)
-            if world.getCurrentPlayer().gethandlength() == 0:
-                print(world.getCurrentPlayer().name, "wins!")
-                sys.exit(0)
-            world.getCurrentPlayer().tkConfigureShowHand(DISABLED)
-            world.setCurrentPlayer(world.getNextPlayer(world.getCurrentPlayer()))
+        # adding in to deal with new functionality
+        world.updateTurnNum(1)
+    # changing from the while True loop. If this doesn't work, then revert.
+    world.getCurrentPlayer().takeTurn()
     #log.close() # fix later
 
-def askBs(current, turn_num, world):
-    """Loop through the array of players and ask each player if they call BS. If a player says yes, call the checkBS function."""
-    this_player = world.getNextPlayer(current)  # create a variable to keep track of which player to ask and initialize it to the next player after the current player
-    message = current.name + " played " + numToWord(current.getnumplayed()) + " " + numToStr(turn_num)
+
+def askBs(player, world):
+    """Enable the buttons that allow a player to call (or not call) BS."""
+  # create a variable to keep track of which player to ask and initialize it to the next player after the current player
+    # should move into method of world
+    '''message = current.name + " played " + numToWord(current.getnumplayed()) + " " + numToStr(turn_num)
     if current.numplayed > 1:  # if the player played more than one card, make the number word plural
-        message += "s"
-    for x in range(world.getNumPlayers() - 1):
+        message += "s"'''
+    world.getPreviousPlayer(player).BSConfig(DISABLED)  # don't allow that player to call bs anymore this turn
+    if player == world.getCurrentPlayer():
+        if player.gethandlength() == 0:  # duplicated code: could move into function
+            print(player.name, "wins!")  # change .name to getName()
+            sys.exit(0)
+        world.getNextPlayer(player).takeTurn()
+    else:
+        player.BSConfig(NORMAL)
+    '''for x in range(world.getNumPlayers() - 1):
         """if players[x] == currentPlayer:
             print("skipped")
             continue"""
         message = "%s has %d cards and there are %d cards in the pile. %s, do you call bs?" % (current.name,
                                                 current.gethandlength(), len(world.getPile()), this_player.name)
         this_player.BSConfig(NORMAL)
-        '''if y_or_n("%s has %d cards and there are %d cards in the pile. %s, do you call bs?" %
+        if y_or_n("%s has %d cards and there are %d cards in the pile. %s, do you call bs?" %
                           (current.name, current.gethandlength(),
                            len(current.pile), this_player.name), False):  # ask the next player if they call bs
             checkBs(current, this_player, turn)  # fix the get next player
-            break'''
+            break
         if world.getbs():
             break
-        this_player = world.getNextPlayer(this_player)
+        this_player = world.getNextPlayer(this_player)'''
 
 def checkBs(defendant, prosecutor, world):
     """Checks whether the accused player was lying or not and moves all the cards in the pile to the appropriate player."""
+    # should move to method of world
     world.calledbs()
     prosecutor.BSConfig(DISABLED)
     if defendant.getHonesty():
         world.emptyPile(prosecutor)
         print("%s was telling the truth! The cards from the pile have been added to %s's hand." % (
-        defendant.name, prosecutor.name))
+            defendant.name, prosecutor.name))
+        # check to see if the hand is empty
+        if defendant.gethandlength() == 0:
+            print(defendant.name, "wins!")  # change .name to getName()
+            sys.exit(0)
     else:
         world.emptyPile(defendant)
         print("%s was lying! The cards from the pile have been added to %s's hand." % (defendant.name, defendant.name))
+    # now it is next player's turn
+    world.getNextPlayer(world.getCurrentPlayer()).takeTurn()

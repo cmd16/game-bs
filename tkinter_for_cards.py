@@ -46,27 +46,27 @@ class SetupWidget:
         self._playername = StringVar()
         self._playerentry = Entry(self._window, textvariable=self._playername)
         self._playerentry.pack()
-        self._cpuentry = IntVar()
-        self._cpuoption = Checkbutton(self._window, variable=self._cpuentry, text='Computer player?', command=self.toggleCpuOptions)
+        self._cpuvar = IntVar()
+        self._cpuoption = Checkbutton(self._window, variable=self._cpuvar, text='Computer player?', command=self.toggleCpuOptions)
         self._playername.set("Enter name here")
         self._addplayerbutton = Button(self._window, text="Add player", command=self.createPlayer) #later disable
         self._addplayerbutton.pack(side=BOTTOM)
         self._invalidlabel = Label(self._window)
         self._validlabel = Label(self._window)
-        self._difficultyentry = IntVar()
-        self._difficultyslider = Scale(self._window, variable=self._difficultyentry, label='Difficulty level:',
+        self._difficultyvar = IntVar()
+        self._difficultyslider = Scale(self._window, variable=self._difficultyvar, label='Difficulty level:',
                                        orient=HORIZONTAL, from_=1, to=5, sliderlength=15)
-        self._riskentry = IntVar()
-        self._riskslider = Scale(self._window, variable=self._riskentry, label='Risk level:',
-                                       orient=HORIZONTAL, from_=1, to=5, sliderlength=15)
-        self._pbentry = BooleanVar()
-        self._pbcheckbox = Checkbutton(self._window, variable=self._pbentry, text='Do you want the computer to tell you when it has successfully lied?')
-        self._verboseentry = BooleanVar()
-        self._verbosecheckbox = Checkbutton(self._window, variable=self._verboseentry, text='Turn on verbose output?')
+        self._riskvar = IntVar()
+        self._riskslider = Scale(self._window, variable=self._riskvar, label='Risk level:',
+                                 orient=HORIZONTAL, from_=1, to=5, sliderlength=15)
+        self._pbvar = BooleanVar()
+        self._pbcheckbox = Checkbutton(self._window, variable=self._pbvar, text='Do you want the computer to tell you when it has successfully lied?')
+        self._verbosevar = BooleanVar()
+        self._verbosecheckbox = Checkbutton(self._window, variable=self._verbosevar, text='Turn on verbose output?')
         self._verbosecheckbox.pack()
         self._cpuoption.pack()
 
-    def createPlayer(self): # first need to check that all inputs are valid
+    def createPlayer(self):  # first need to check that all inputs are valid
         """Checks that the user has entered valid input. If the input is invalid, show an error message.
         If the input is valid, create a player with the given input and add it to self's world's list of players."""
         self._invalidlabel.pack_forget()
@@ -83,15 +83,15 @@ class SetupWidget:
         self._addplayerbutton['state'] = NORMAL
         self._validlabel.config(text='Player added: ' + self._playername.get())
         self._validlabel.pack()
-        if self._cpuentry.get() == 1:
-            self._world.createPlayer(self._playername.get(), self._riskentry.get(), self._pbentry.get(), self._verboseentry.get())
+        if self._cpuvar.get() == 1:
+            self._world.createPlayer(self._playername.get(), self._riskvar.get(), self._pbvar.get(), self._verbosevar.get())
         else:
-            print('verbose', self._verboseentry.get())
-            self._world.createPlayer(self._playername.get(), self._verboseentry.get())
+            print('verbose', self._verbosevar.get())
+            self._world.createPlayer(self._playername.get(), self._verbosevar.get())
 
     def toggleCpuOptions(self):
         """If the cpu checkbox is checked, show the cpu options. If the cpu checkbox is unchecked, hide the cpu options."""
-        if self._cpuentry.get() == 1:
+        if self._cpuvar.get() == 1:
             self._difficultyslider.pack()
             self._riskslider.pack()
             self._pbcheckbox.pack()
@@ -102,8 +102,8 @@ class SetupWidget:
 
     def printcpuvalues(self):
         """Prints the values of the input for the cpu options. This method used for debugging only."""
-        print('difficulty:', self._difficultyentry.get(), 'risk:', self._riskentry.get(), 'pb:', self._pbentry.get(),
-              'verbose:', self._verboseentry.get())
+        print('difficulty:', self._difficultyvar.get(), 'risk:', self._riskvar.get(), 'pb:', self._pbvar.get(),
+              'verbose:', self._verbosevar.get())
 
 class worldStats:
     def __init__(self, world, master=None):
