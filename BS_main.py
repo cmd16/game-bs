@@ -1,10 +1,8 @@
 """
 This program allows human and/or computer players to play the card game BS"""
 # STUFF TO FIX: Get from playing cards to asking BS, Create a stats window. Get PIL working to show cards. Create AIs.
-# Create a turn function that is called every time and checks the length of hand
 # Limit the number of players that can be created
 # Look at changing pile to deck object
-# change sumbit button to disable showHand button
 # override membership in Player so that if card in self returns True if the card is in the player's hand
 
 # Note: accessor methods for other programmers to access, in this context ok to access directly
@@ -25,15 +23,15 @@ debug2 = False
 debug3 = False
 unit_tests = False
 debug4 = False
-debugsetup = True
+debugsetup = False
 
 
-def setUpGame(logfile=open('test.txt','w')):
+def setUpGame(logfile=open('test.txt', 'w')): # fix logfile stuff
     """The code to set up the game"""
     if debugsetup:
         print('setting up game')
     #log = open(logfile, 'w')
-    thisWorld = World(logfile=logfile)  # change to log
+    thisWorld = World(logfile=logfile, verbose=True)  # change to log
     root = Tk()
     setupwindow = SetupWidget(world=thisWorld, master=root)
     root.mainloop()
@@ -48,7 +46,7 @@ setUpGame(logfile=logfile)  # ERROR
 #gameBs(logfile='test.txt')
 logfile.close()
 if unit_tests:
-    world = World()
+    world = World(logfile='test.txt', verbose=True)
     root = Tk()
     setupwindow = SetupWidget(world=world, master=root)
     root.mainloop()

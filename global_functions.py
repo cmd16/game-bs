@@ -134,22 +134,3 @@ def askBs(player, world):
         if world.getbs():
             break
         this_player = world.getNextPlayer(this_player)'''
-
-def checkBs(defendant, prosecutor, world):
-    """Checks whether the accused player was lying or not and moves all the cards in the pile to the appropriate player."""
-    # should move to method of world
-    world.calledbs()
-    prosecutor.BSConfig(DISABLED)
-    if defendant.getHonesty():
-        world.emptyPile(prosecutor)
-        print("%s was telling the truth! The cards from the pile have been added to %s's hand." % (
-            defendant.name, prosecutor.name))
-        # check to see if the hand is empty
-        if defendant.gethandlength() == 0:
-            print(defendant.name, "wins!")  # change .name to getName()
-            sys.exit(0)
-    else:
-        world.emptyPile(defendant)
-        print("%s was lying! The cards from the pile have been added to %s's hand." % (defendant.name, defendant.name))
-    # now it is next player's turn
-    world.getNextPlayer(world.getCurrentPlayer()).takeTurn()

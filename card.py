@@ -19,6 +19,20 @@ class Card:
             a human can read the card names."""
         return str(self)
 
+    def get_number(self):
+        """accessor method for number"""
+        return self._number
+
+    def __eq__(self, other):
+        """A function to compare the number value of cards. returns True if self and other are equivalent"""
+        if self._number == other.get_number():
+            return True
+
+    def __lt__(self, other):
+        """A function to compare the number value of cards. returns True if self < other."""
+        if self._number < other.get_number():
+            return True
+
     def __str__(self):
         result = ""
         if self._number == 1:

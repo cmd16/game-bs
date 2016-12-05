@@ -5,7 +5,7 @@ from global_functions import *
 debug = False
 class Player:
     """A class to represent players. Each player has a name and a hand."""
-    def __init__(self, name, verbose=False, world=None, logfile=open('test.txt','w')):
+    def __init__(self, name, verbose=False, world=None, logfile=None):
         """Players start out with a name and an empty hand."""
         self.name = name  # used in print so that the human player can tell who is who
         self.hand = []  # an empty list into which the player's cards will be added
@@ -14,7 +14,11 @@ class Player:
         self.verbose = verbose
         self.honesty = True  # a boolean that changes every turn depending on whether the player lied or not
         self.numplayed = 0  # an integer that changes every turn depending on how many cards the player played
-        self.log = logfile
+        try:
+            self.log = open(logfile, 'w')
+        except TypeError:
+            print("No logfile was given")
+            self.log = None
         self.frame = None
         self.name_label = None
         self.hand_len_label = None
@@ -22,6 +26,8 @@ class Player:
         self.cardframe = None
         self.bsbutton = None
         self.notbsbutton = None
+        if self.log is not None:
+            self.log.write(str(self) + ' created a Player object\n')
 
     def createFrame(self, window, column):
         """Create a frame for displaying player stats"""
@@ -30,9 +36,8 @@ class Player:
         self.name_label = Label(self.frame, text=self.name)
         self.name_label.grid()
         self.hand_len_label = Label(self.frame, text=str(self.gethandlength()) + ' cards')
-        self.hand_len_label.grid(row=2)
-        self.bsbutton = Button(self.frame, text='Call BS', command=lambda: checkBs(self.world.getCurrentPlayer(), self,
-                                                                                   self.world), state=DISABLED)
+        self.hand_len_label.grid(row=2)  # changing checkBs so that it gets current player
+        self.bsbutton = Button(self.frame, text='Call BS', command=lambda: self.world.checkBs(self), state=DISABLED)
         self.bsbutton.grid(row=3)
         self.notbsbutton = Button(self.frame, text="Don't call BS", command=lambda: askBs(self.world.getNextPlayer(self),
                                                                                           self.world), state=DISABLED)
@@ -165,6 +170,10 @@ class Player:
         self.tkConfigureShowHand(DISABLED)
         self.cardframe.destroy()
         self.updateWindow()
+        message = self.name + " played " + numToWord(self.getnumplayed()) + " " + numToStr(self.world.getTurnNum())  # move this into log?
+        if self.numplayed > 1:  # if the player played more than one card, make the number word plural
+            message += "s"
+        print(message)
         askBs(self.world.getNextPlayer(self), self.world)
 
     def checkBoxes(self):
@@ -266,3 +275,9 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
     def __str__(self):
         return self.name + ', ' + str(len(self.hand)) + ' cards, ' + 'difficulty level: ' + str(self.difficulty) \
                + ', risk level: ' + str(self.risk) + ', pb: ' + str(self.pb) + ', verbose: ' + str(self.verbose)
+
+if __name__ == "__main__":
+    print('this worked')
+    p = Player("joe", True, logfile='test.txt')
+    assert p.name == 'joe'
+    assert p.verbose

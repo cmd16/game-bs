@@ -4,7 +4,7 @@ from player import *
 
 class World:
     """A class to represent the world."""
-    def __init__(self, deck=None, logfile=open('test.txt', 'w')):
+    def __init__(self, deck=None, logfile=open('test.txt', 'w'), verbose=False):
         """Create a world object"""
         self.log = logfile
         if deck == None:  # if no Deck is given, create a Deck
@@ -13,8 +13,11 @@ class World:
         self._bscalled = False  # this is basically just a global variable
         self._pile = []
         self._turn_num = 1
+        self.verbose = verbose
         if self.log is not None:
             self.log.write('Created a World object.\n')
+        if self.verbose:
+            print('Created a World object.')
         self._window = None
         self.start = None
         self.currentplayer = None
@@ -23,6 +26,8 @@ class World:
         """Set the current player"""
         if self.log is not None:
             self.log.write("Setting the current player to " + player.name + '\n')
+        if self.verbose:
+            print("Setting the current player to " + player.name)
         self.currentplayer = player
 
     def getCurrentPlayer(self):
@@ -34,6 +39,8 @@ class World:
     def createWindow(self):
         if self.log is not None:
             self.log.write("Creating the world's window\n")
+        if self.verbose:
+            print("Creating the world's window")
         self._window = Tk()
         self._window.title('Playing BS')
         #from BS_main import gameBs
@@ -74,11 +81,14 @@ class World:
         """Accessor method to return the pile"""
         if self.log is not None:
             self.log.write('Returning the pile.\n')
+        if self.verbose:
+            print('Returning the pile.')
         return self._pile
 
     def emptyPile(self, player):
         """Takes all the cards from the pile and gives them to the player"""
-        self.log.write('Emptying the pile and giving all the cards to ' + player.name + '\n')
+        if self.log is not None:
+            self.log.write('Emptying the pile and giving all the cards to ' + player.name + '\n')
         player.addCards(self.getPile())
         self._pile = []
 
@@ -176,3 +186,27 @@ class World:
             return self._playerlist[index - 1]
         except ValueError:
             print("Error: player does not exist.")
+
+    def checkBs(self, prosecutor):  # changed defendant to current player
+        """Checks whether the accused player was lying or not and moves all the cards in the pile to the appropriate player."""
+        # world.calledbs() removed because not needed
+        defendant = self.getCurrentPlayer()
+        if self.verbose:
+            print('pile:', self._pile)
+        prosecutor.BSConfig(DISABLED)
+        if defendant.getHonesty():
+            self.emptyPile(prosecutor)
+            print("%s was telling the truth! The cards from the pile have been added to %s's hand." % (
+                defendant.name, prosecutor.name))
+            # check to see if the hand is empty
+            if defendant.gethandlength() == 0:
+                print(defendant.name, "wins!")  # change .name to getName()
+                sys.exit(0)
+        else:
+            self.emptyPile(defendant)
+            print("%s was lying! The cards from the pile have been added to %s's hand." % (
+            defendant.name, defendant.name))
+        if self.verbose:
+            print('now pile is', self._pile)
+        # now it is next player's turn
+        self.getNextPlayer(self.getCurrentPlayer()).takeTurn()
