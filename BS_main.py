@@ -26,7 +26,7 @@ debug4 = False
 debugsetup = False
 
 
-def setUpGame(logfile=open('test.txt', 'w')): # fix logfile stuff
+def setUpGame(logfile=None):  # fix logfile stuff
     """The code to set up the game"""
     if debugsetup:
         print('setting up game')
@@ -41,9 +41,10 @@ def setUpGame(logfile=open('test.txt', 'w')): # fix logfile stuff
 
 
 # main code
+# how to ask for a logfile
 logfile = open('test.txt', 'w')
 setUpGame(logfile=logfile)  # ERROR
-#gameBs(logfile='test.txt')
+# gameBs(logfile='test.txt')
 logfile.close()
 if unit_tests:
     world = World(logfile='test.txt', verbose=True)

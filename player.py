@@ -132,6 +132,7 @@ class Player:
 
     def tkSelectHand(self):
         """Shows the player's hand and allows the player to select up to 4 cards."""
+        self.tkConfigureShowHand(DISABLED)
         self.cardframe = Frame(self.frame)
         self.cardframe.grid()
         self.tkhand = [[x, IntVar()] for x in self.hand]
@@ -174,7 +175,7 @@ class Player:
         if self.numplayed > 1:  # if the player played more than one card, make the number word plural
             message += "s"
         print(message)
-        askBs(self.world.getNextPlayer(self), self.world)
+        self.world.askBs(self.world.getNextPlayer(self))
 
     def checkBoxes(self):
         """Counts how many checkboxes are checked. Disables other checkboxes is 4 are checked, enables all checkboxes if
