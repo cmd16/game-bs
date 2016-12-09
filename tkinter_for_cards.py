@@ -49,7 +49,7 @@ class SetupWidget:
         self._cpuvar = IntVar()
         self._cpuoption = Checkbutton(self._window, variable=self._cpuvar, text='Computer player?', command=self.toggleCpuOptions)
         self._playername.set("Enter name here")
-        self._addplayerbutton = Button(self._window, text="Add player", command=self.createPlayer) #later disable
+        self._addplayerbutton = Button(self._window, text="Add player", command=self.createPlayer)  # later disable
         self._addplayerbutton.pack(side=BOTTOM)
         self._invalidlabel = Label(self._window)
         self._validlabel = Label(self._window)
@@ -86,7 +86,6 @@ class SetupWidget:
         if self._cpuvar.get() == 1:
             self._world.createPlayer(self._playername.get(), self._riskvar.get(), self._pbvar.get(), self._verbosevar.get())
         else:
-            print('verbose', self._verbosevar.get())
             self._world.createPlayer(self._playername.get(), self._verbosevar.get())
 
     def toggleCpuOptions(self):
@@ -105,6 +104,8 @@ class SetupWidget:
         print('difficulty:', self._difficultyvar.get(), 'risk:', self._riskvar.get(), 'pb:', self._pbvar.get(),
               'verbose:', self._verbosevar.get())
 
+
+# NOT USED
 class worldStats:
     def __init__(self, world, master=None):
         self._world = world
@@ -119,6 +120,8 @@ class worldStats:
         for idx in range(len(self._players)):
             self._players[idx][1].grid(column=idx, row=0)
             self._players[idx][2].grid(column=idx, row=1)
+
+# NOT USED
 if unit2:
     thisWorld = World()
     root = Tk()

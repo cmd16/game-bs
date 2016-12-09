@@ -1,7 +1,10 @@
 from tkinter import *
 import sys
+
+# NOT USED ANY MORE
 def y_or_n (msg, default):
-    """a function that asks a yes or no question and returns true if yes, false if no, and the default value if neither yes nor no"""
+    """a function that asks a yes or no question and returns true if yes, false if no, and the
+    default value if neither yes nor no"""
     answer = input(msg).strip()[0].lower()  # this only looks at the first letter and makes it lowercase
     if answer == "y":  # note: "yes","Yeah","yo", etc. all count - all that matters is that the first letter is y
         return True
@@ -87,7 +90,7 @@ def nameToCardName(name):
         return nameNum + " of " + nameSuit
 
 
-def gameBs(world, logfile=None):
+def gameBs(world):
     """The main code to play the game BS"""
     # move into main loop
     for player in world.getPlayerList():
@@ -99,11 +102,11 @@ def gameBs(world, logfile=None):
         world.setCurrentPlayer(world.getPlayerList()[0])
         # adding in to deal with new functionality
         world.updateTurnNum(1)
-    # changing from the while True loop. If this doesn't work, then revert.
     world.getCurrentPlayer().takeTurn()
     #log.close() # fix later
 
 
+# DELETE THIS MOVED TO WORLD
 def askBs(player, world):
     """Enable the buttons that allow a player to call (or not call) BS."""
   # create a variable to keep track of which player to ask and initialize it to the next player after the current player

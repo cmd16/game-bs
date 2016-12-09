@@ -4,15 +4,17 @@ from tkinter import *
 class Card:
     """A class to represent playing cards. Card objects should not be changed."""
     def __init__(self, number, suit):
-        """Each card has an integer from 1 to 14 representing a number and an integer from 1 to 4 representing a suit. Each card also has a string representation."""
+        """Each card has an integer from 1 to 14 representing a number and an integer from 1 to 4 representing a suit.
+        Each card also has a string representation."""
         self._number = number
         self._suit = suit
-        #self._suitStr = numToSuit(self._suit)
-        #self._numStr = numToStr(self._number)
+        # self._suitStr = numToSuit(self._suit)
+        # self._numStr = numToStr(self._number)
         '''self._pic = PIL.ImageTk.PhotoImage(
             PIL.Image.open('/Users/cat/PycharmProjects/myCS106/Final_project/PNG-cards-1.3/%s.png' %(str(self).replace(" ","_").lower())))
         self._label = None'''
 
+    # DELETE LATER
     def __repr__(self):
         """Overrides an existing object method so that the card value returned is one that can be read by the user.
         __repr__() is used when printing objects in a list, so this ensures that when python prints out a player's hand,
@@ -64,3 +66,6 @@ class Card:
 c = Card(3, 2)
 c.showSelf(window)
 window.mainloop()'''
+
+if '__name__' == '__main__':
+    c = Card(3, 2)

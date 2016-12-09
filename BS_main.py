@@ -30,7 +30,7 @@ def setUpGame(logfile=None):  # fix logfile stuff
     """The code to set up the game"""
     if debugsetup:
         print('setting up game')
-    #log = open(logfile, 'w')
+    # log = open(logfile, 'w')
     thisWorld = World(logfile=logfile, verbose=True)  # change to log
     root = Tk()
     setupwindow = SetupWidget(world=thisWorld, master=root)
@@ -43,6 +43,7 @@ def setUpGame(logfile=None):  # fix logfile stuff
 # main code
 # how to ask for a logfile
 logfile = open('test.txt', 'w')
+logfile.write('hi')
 setUpGame(logfile=logfile)  # ERROR
 # gameBs(logfile='test.txt')
 logfile.close()
@@ -53,4 +54,3 @@ if unit_tests:
     root.mainloop()
     world._deck.addAllCards()
     world.deal()
-    world.getPlayerList()[0].tkSelectHand(2)

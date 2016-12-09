@@ -10,15 +10,16 @@ class Player:
         self.name = name  # used in print so that the human player can tell who is who
         self.hand = []  # an empty list into which the player's cards will be added
         self.world = world  # keeps track of the world the player belongs to
-        self.tkhand = None  # used for tk
+        self.tkhand = None  # used for tkinter
         self.verbose = verbose
         self.honesty = True  # a boolean that changes every turn depending on whether the player lied or not
         self.numplayed = 0  # an integer that changes every turn depending on how many cards the player played
-        try:
+        """try: # fix this later
             self.log = open(logfile, 'w')
         except TypeError:
             print("No logfile was given")
-            self.log = None
+            self.log = None"""
+        self.log = logfile  # a file object
         self.frame = None
         self.name_label = None
         self.hand_len_label = None
@@ -28,6 +29,7 @@ class Player:
         self.notbsbutton = None
         if self.log is not None:
             self.log.write(str(self) + ' created a Player object\n')
+
 
     def createFrame(self, window, column):
         """Create a frame for displaying player stats"""
@@ -158,8 +160,9 @@ class Player:
                     print(self.name, 'found a selected card:', self.tkhand[idx][0])
                 if self.log is not None:
                     self.log.write(self.name + ' found a selected card: %s\n' % self.tkhand[idx][0])
-                self.world._pile.append(self.tkhand[idx][0])
-                self.hand.remove(self.tkhand[idx][0])
+                # put in a method to remove the card from the hand and add it to the deck world's deck. Then change checkBs
+                self.world._pile.append(self.tkhand[idx][0])  # ok so this is what I need to change
+                self.hand.remove(self.tkhand[idx][0])  # so this function didn't actually work # so I need to change this
                 numplayed += 1
                 if self.tkhand[idx][0]._number != self.world.getTurnNum():
                     if self.verbose:
@@ -174,7 +177,7 @@ class Player:
         message = self.name + " played " + numToWord(self.getnumplayed()) + " " + numToStr(self.world.getTurnNum())  # move this into log?
         if self.numplayed > 1:  # if the player played more than one card, make the number word plural
             message += "s"
-        print(message)
+        print(message)  # fix this
         self.world.askBs(self.world.getNextPlayer(self))
 
     def checkBoxes(self):
