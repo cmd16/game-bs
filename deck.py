@@ -9,6 +9,10 @@ class Deck:
         """Creates a deck object."""
         self._cards = []
 
+    def __getitem__(self, key):
+        """A method to access cards by index"""
+        return self._cards[key]
+
     def addAllCards(self):
         """Creates one card of each suit for each number/face and adds it to the deck."""
         for i in range(1, 14):

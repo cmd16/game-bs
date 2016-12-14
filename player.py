@@ -181,6 +181,7 @@ class Player:
         cards were played."""
         self.numplayed = 0  # keep track of how many cards were played this round
         self.honesty = True
+        cards_played = []  # a list to keep track of the played cards
         for idx in range(len(self.tkhand)):
             if self.tkhand[idx][1].get() == 1:
                 if self.verbose:
@@ -188,7 +189,7 @@ class Player:
                 if self.log is not None:
                     self.log.write(self.name + ' found a selected card: %s\n' % self.tkhand[idx][0])
                 # put in a method to remove the card from the hand and add it to the deck world's deck. Then change checkBs
-                self.world._pile.append(self.tkhand[idx][0])  # ok so this is what I need to change
+                cards_played.append(self.tkhand[idx][0])  # ok so this is what I need to change
                 self.hand.remove(self.tkhand[idx][0])  # so this function didn't actually work
                 #  so I need to change this
                 self.numplayed += 1
@@ -198,17 +199,18 @@ class Player:
                     if self.log is not None:
                         self.log.write(self.name + ' found a bluff card: %s\n' % self.tkhand[idx][0])
                     self.honesty = False
-        if self.numplayed == 0:  # if the player played no cards, make them try again
-            print('No cards were played.')
-            # self.tkSelectHand()  # ERROR _tkinter.TclError: bad window path name ".4384685360.4384703768.4384703824"
-            return
         self.tkConfigureShowHand(DISABLED)  # disable the show hand button
         self.cardframe.destroy()  # destroy the card frame
         self.updateWindow()  # update the window
+        if self.numplayed == 0:  # if the player played no cards, make them try again
+            print('No cards were played.')
+            self.tkSelectHand()
+            return
         if self.verbose:
             print(numToWord(self.numplayed))
         if self.log is not None:
             self.log.write(numToWord(self.numplayed))
+        self.world._deck.addCards(cards_played)  # add the played cards to the world's deck
         summary = self.name + " played " + numToWord(self.numplayed) + " " + numToStr(
             self.world.getTurnNum())  # record how many cards the player played and what number they should be
         if self.numplayed > 1:  # if the player played more than one card, make the number word plural

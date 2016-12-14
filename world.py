@@ -27,6 +27,8 @@ class World:
         self._text = None
         self._message = None
         self._message_var = None
+        self._card_stat = None
+        self._card_stat_var = None
 
     def updateMessage(self, message):
         """Change the message displayed in the window"""
@@ -67,6 +69,9 @@ class World:
         self._message = Message(self._window, textvariable=self._message_var)
         self._message_var.set("Welcome to the game BS!")
         self._message.grid(row=1, column=len(self._playerlist))
+        self._card_stat_var = StringVar()
+        self._card_stat = Message(self._window, textvariable=self._card_stat_var)
+        self._card_stat.grid(row=0, column=len(self._playerlist)+1)
         for idx in range(len(self._playerlist)):
             self._playerlist[idx].createFrame(self._window, idx)  # tell each player to create their frame
         '''self._text = Text(self._window)
@@ -139,6 +144,10 @@ class World:
             print('Emptying the pile and giving all the cards to ' + player.name)
         player.addCards(self.getPile())
         self._pile = []
+
+    def giveAllCards(self, player):
+        """Give all the deck's cards to the specified player"""
+        self._deck.giveAllCards(player)
 
     def calledbs(self):
         """Mutator method to tell the world that bs was called"""
@@ -257,18 +266,28 @@ class World:
         if self.log is not None:
             self.log.write('Checking to see if Bs was called')
         prosecutor.BSConfig(DISABLED)
-        if defendant.getHonesty():
-            self.emptyPile(prosecutor)  # take a look at what this is doing
+        honesty = True  # assume the player told the truth, then change later if needed
+        cards = []  # a local list of the cards the player played
+        for i in range(defendant.getnumplayed()):
+            cards.append(self._deck[i])
+            if self._deck[i].get_number() != self._turn_num:  # if the number of the card doesn't match the number that should have been played
+                honesty = False
+        self.updateMessage(str(cards))  # show a list of the cards that were played
+        if self.verbose:
+            print('cards:', cards)
+        if self.log is not None:
+            self.log.write('cards: ' + str(cards))
+        if honesty:
+            self.giveAllCards(prosecutor)  # take a look at what this is doing
             # these need to move
             self.updateMessage("%s was telling the truth! The cards from the pile have been added to %s's hand." % (
                 defendant.name, prosecutor.name))
             # check to see if the hand is empty
-            if defendant.gethandlength() == 0:
-                print(defendant.name, "wins!")  # change .name to getName()
-                sys.exit(0)
+            defendant.checkHandLength()
         else:
-            self.emptyPile(defendant)
-            self.updateMessage("%s was lying! The cards from the pile have been added to %s's hand." % (defendant.name, defendant.name))
+            self.giveAllCards(defendant)
+            self.updateMessage("%s was lying! The cards from the pile have been added to %s's hand." % (
+                defendant.name, defendant.name))
         if self.verbose:
             print('now pile is', self._pile)
         if self.log is not None:
