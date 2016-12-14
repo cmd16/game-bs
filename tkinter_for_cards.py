@@ -3,39 +3,6 @@ from player import *
 from world import *
 from deck import *
 
-unit_tests = False
-unit2 = False
-
-class Confirm:  # NOT USED
-    """A class to ask players whether they call BS."""
-    def __init__(self, master=None, message=None, ycommand=None, ncommand=None):
-        self._window = master
-        self._message = message
-        self._ycommand = ycommand
-        self._ncommand = ncommand
-        self._window.title("Calling BS")  # Set title
-        # Create a label
-        label = Label(self._window, text=message)
-        # Create a button
-        self._y_n_value = BooleanVar()
-        y = Button(self._window, text="Yes", command=self._ycommand)
-        n = Button(self._window, text="No", command=self._ncommand)
-        # Put the widgets on the window
-        label.pack()
-        y.pack()
-        n.pack()
-
-    def yes(self):
-        print("Yes")
-        self._window.destroy()
-        return True
-
-    def no(self):
-        print("No")
-        self._window.destroy()
-        return False
-
-
 class SetupWidget:
     """A widget to set up the game by getting user input (names, computer player options, etc.) and then creating Player
     objects using the given input as parameters."""
@@ -105,7 +72,7 @@ class SetupWidget:
               'verbose:', self._verbosevar.get())
 
 
-if unit_tests:
+if "__name__" == "__main__":
     this_world = World()
     this_world._playerlist.append(Player("Joe"))
     root = Tk()

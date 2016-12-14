@@ -1,10 +1,6 @@
-# stuff to fix: get from asking Bs to next turn
+
 from tkinter import *
 from global_functions import *
-
-debug = False
-debugging = True
-
 
 class Player:
     """A class to represent players. Each player has a name and a hand."""
@@ -18,11 +14,6 @@ class Player:
         self.verbose = verbose
         self.honesty = True  # a boolean that changes every turn depending on whether the player lied or not
         self.numplayed = 0  # an integer that changes every turn depending on how many cards the player played
-        """try: # fix this later
-            self.log = open(logfile, 'w')
-        except TypeError:
-            print("No logfile was given")
-            self.log = None"""
         self.log = logfile  # a file object
         # these next few variables are used for the tkinter frame to display the cards
         self.frame = None
@@ -68,7 +59,7 @@ class Player:
                 #  number of cards the player has
 
     def checkHandLength(self):
-        """Check to see if the hand length is 0"""
+        """Check to see if there are no cards. If there are no cards, print a congratulatory message and exit the game."""
         if self.gethandlength() == 0:
             print(self.name, "wins!")
             sys.exit(0)
@@ -80,10 +71,6 @@ class Player:
         if self.log is not None:
             self.log.write(self.name + ' Getting the number of cards played\n')
         return self.numplayed
-
-    def getHonesty(self):
-        """Accessor method to return true if the player lied"""
-        return self.honesty
 
     def sortHand(self):
         """Sorts the player's hand by numerical order"""
@@ -117,8 +104,7 @@ class Player:
             self.log.write(self.name + " Taking a turn")
         self.world.setCurrentPlayer(self)  # tell the world to set it's current player to self
         self.world.incTurnNum()  # update the world's turn number
-        self.world.resetbs()  # I DONT THINK THIS IS USED
-        self.world.updateMessage(self.name + "'s turn to play " + numToStr(self.world.getTurnNum()) + 's')
+        self.world.updateMessage(self.name + "'s turn to play " + cardNumToStr(self.world.getTurnNum()) + 's')
         self.tkConfigureShowHand(NORMAL)  # allow the player to click the 'show hand' button
 
     def BSConfig(self, state):
@@ -133,22 +119,6 @@ class Player:
             for player in self.world.getPlayerList():
                 if player is not self:
                     player.bsbutton.config(state=DISABLED)  # disable all the other players' bs and not bs buttons
-
-    """THIS METHOD NOT USED"""
-
-    def tkShowHand(self, turn_num):
-        """Creates a window, tells the player what they need to play and waits for them to click a button to show their hand."""
-        if self.verbose:
-            print(self.name, 'tk asking to show hand.')
-        if self.log is not None:
-            self.log.write(self.name + ' tk asking to show hand hand.\n')
-        root = Tk()
-        root.title('Selecting cards.')
-        label = Label(root, text=self.name + ", you need to play %ss." % numToStr(turn_num))
-        label.pack()
-        next = Button(root, text="Show hand", command=lambda: self.tkSelectHand())
-        next.pack()  # later implement pack_forget()
-        root.mainloop()
 
     def tkSelectHand(self):
         """Shows the player's hand and allows the player to select up to 4 cards."""
@@ -210,8 +180,8 @@ class Player:
             print(numToWord(self.numplayed))
         if self.log is not None:
             self.log.write(numToWord(self.numplayed))
-        self.world._deck.addCards(cards_played)  # add the played cards to the world's deck
-        summary = self.name + " played " + numToWord(self.numplayed) + " " + numToStr(
+        self.world.playCards(cards_played)  # add the played cards to the world's deck
+        summary = self.name + " played " + numToWord(self.numplayed) + " " + cardNumToStr(
             self.world.getTurnNum())  # record how many cards the player played and what number they should be
         if self.numplayed > 1:  # if the player played more than one card, make the number word plural
             summary += "s"
@@ -227,8 +197,6 @@ class Player:
             self.log.write(self.name + ' A checkbox was checked.\n')
         numchecked = 0
         for idx in range(len(self.tkhand)):
-            if debug:
-                print(self.name, 'self.tkhand[%d] is' % idx, self.tkhand[idx])
             if self.tkhand[idx][1].get() == 1:  # if the checkbox is checked
                 if self.verbose:
                     print(self.name, 'found a checked box:', self.tkhand[idx][0])
@@ -268,21 +236,7 @@ class Player:
             self.log.write(self.name + ' Hand is now %s\n' % self.hand)
         self.updateWindow()
 
-    def removeCards(self, cardSeq):
-        """Removes the given cards from the player's hand"""
-        if self.verbose:
-            print(self.name, 'Removing', cardSeq, 'from hand.')
-        if self.log is not None:
-            self.log.write(self.name + ' removing %s from hand.\n' % cardSeq)
-        for item in cardSeq:
-            self.hand.remove(self.findCard(item))
-        if self.verbose:
-            print(self.name, 'Hand is now', self.hand)
-        if self.log is not None:
-            self.log.write(self.name + ' hand is now %s\n' % self.hand)
-        self.updateWindow()
-
-    def findCard(self, name):  # I DONT THINK THIS IS USED
+    def findCard(self, name):
         """Searches the player's hand for the card of a given name. If the card is found, return the card."""
         if self.verbose:
             print(self.name, 'Searching hand for', name)
@@ -326,5 +280,5 @@ class Cpu(
 if __name__ == "__main__":
     print('this worked')
     p = Player("joe", True, logfile=open('test.txt', 'w'))
-    assert p.name == 'joe'
+    assert p.name == 'hi'
     assert p.verbose

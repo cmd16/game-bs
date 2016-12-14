@@ -1,7 +1,7 @@
+
 from random import shuffle
 from player import *
 from card import *
-
 
 class Deck:
     """A class to model a deck of cards."""

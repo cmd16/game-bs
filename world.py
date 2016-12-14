@@ -1,6 +1,5 @@
 from deck import *
 from player import *
-# from BS_main import gameBs MOVED TO LATER IN THE FILE TO AVOID CIRCULAR IMPORTS
 import time
 
 class World:
@@ -13,8 +12,6 @@ class World:
         else:
             self._deck = deck
         self._playerlist = []  # a list of the world's players
-        self._bscalled = False  # this is basically just a global variable
-        self._pile = []
         self._turn_num = 0  # set to 0 because turn_num is incremented at the beginning of each player's turn
         self.verbose = verbose
         if self.log is not None:
@@ -64,23 +61,20 @@ class World:
         self._window.title('Playing BS')
         self.start = Button(self._window, text='start game',
                             command=self.startGame)  # later fix this to include logfile
-        self.start.grid(row=0, column=len(self._playerlist)//2)  # grid the start button in the center on top
+        self.start.grid(row=0, column=self.getNumPlayers()//2)  # grid the start button in the center on top
         self._message_var = StringVar()
         self._message = Message(self._window, textvariable=self._message_var)
         self._message_var.set("Welcome to the game BS!")
-        self._message.grid(row=1, column=len(self._playerlist))
+        self._message.grid(row=1, column=self.getNumPlayers())
         self._card_stat_var = StringVar()
         self._card_stat = Message(self._window, textvariable=self._card_stat_var)
-        self._card_stat.grid(row=0, column=len(self._playerlist)+1)
-        for idx in range(len(self._playerlist)):
+        self._card_stat.grid(row=0, column=self.getNumPlayers()+1)
+        for idx in range(self.getNumPlayers()):
             self._playerlist[idx].createFrame(self._window, idx)  # tell each player to create their frame
-        '''self._text = Text(self._window)
-        self._text.insert(INSERT, 'hi')  # from tutorialspoint. Error takes up a bunch of space
-        self._text.grid(row=1, column=len(self._playerlist))  # the column is at the end of the list of players. commented out because it doesn't work'''
         self._window.mainloop()
 
     def startGame(self):
-        """Start the game by playing"""
+        """Start the game"""
         if self.log is not None:
             self.log.write("Starting game\n")
         if self.verbose:
@@ -93,17 +87,7 @@ class World:
                 break
         else:  # if somehow no player has the Ace of Clubs
             self.setCurrentPlayer(self.getPlayerList()[0])
-            # adding in to deal with new functionality
-            self.updateTurnNum(1)
         self.getCurrentPlayer().takeTurn()
-
-    def updateTurnNum(self, turn_num):  # NOT USED
-        """Update the turn number"""
-        if self.log is not None:
-            self.log.write("Updating turn number\n")
-        if self.verbose:
-            print("Updating turn number")
-        self._turn_num = turn_num
 
     def incTurnNum(self):
         """Increment the turn number"""
@@ -128,48 +112,13 @@ class World:
             print("Returning turn_num")
         return self._turn_num
 
-    def getPile(self):
-        """Accessor method to return the pile"""
-        if self.log is not None:
-            self.log.write('Returning the pile.\n')
-        if self.verbose:
-            print('Returning the pile.')
-        return self._pile
-
-    def emptyPile(self, player):
-        """Takes all the cards from the pile and gives them to the player"""
-        if self.log is not None:
-            self.log.write('Emptying the pile and giving all the cards to ' + player.name + '\n')
-        if self.verbose:
-            print('Emptying the pile and giving all the cards to ' + player.name)
-        player.addCards(self.getPile())
-        self._pile = []
+    def addAllCards(self):
+        """Add all the cards to the world's deck."""
+        self._deck.addAllCards()
 
     def giveAllCards(self, player):
         """Give all the deck's cards to the specified player"""
         self._deck.giveAllCards(player)
-
-    def calledbs(self):
-        """Mutator method to tell the world that bs was called"""
-        if self.log is not None:
-            self.log.write('Telling the world that bs was called.\n')
-        if self.verbose:
-            print('Telling the world that bs was called.')
-        self._bscalled = True
-
-    def resetbs(self):  # NOT USED
-        """Mutator method to reset bs to False. Called at the beginning of every round."""
-        if self.log is not None:
-            self.log.write('Resetting the world\'s bs value.\n')
-        if self.verbose:
-            print('Resetting the world\'s bs value.')
-        self._bscalled = False
-
-    def getbs(self):  # NOT USED
-        """Accessor method to return tell if bs is called"""
-        if self.log is not None:
-            self.log.write('Asking the world if bs was called.\n')
-        return self._bscalled
 
     def getPlayerList(self):
         """Accessor method to get the world's list of players"""
@@ -190,13 +139,13 @@ class World:
                 self.log.write('Creating a Player object: name %s verbose %s\n' % (name, verbose))
             self._playerlist.append(Player(name, verbose, world=self, logfile=self.log))
 
-    def getPlayerNameStrings(self):  # NOT USED
+    def getPlayerNameStrings(self):  # USED FOR DEBUGGING ONLY
         result = ""
         for item in self._playerlist:
             result += str(item) + ". "
         return result
 
-    def getCpuStrings(self):  # NOT USED
+    def getCpuStrings(self):  # USED FOR DEBUGGING ONLY
         result = []
         for item in self._playerlist:
             if isinstance(item, Cpu):
@@ -237,7 +186,7 @@ class World:
             print('Getting the next player.')
         try:
             index = self._playerlist.index(player)
-            if index < len(self._playerlist) - 1:  # if the player is not the last player in the list
+            if index < self.getNumPlayers() - 1:  # if the player is not the last player in the list
                 return self._playerlist[index + 1]
             return self._playerlist[0]
         except ValueError:
@@ -259,12 +208,11 @@ class World:
 
     def checkBs(self, prosecutor):
         """Checks whether the accused player was lying or not and moves all the cards in the pile to the appropriate player."""
-        # world.calledbs() removed because not needed NOT USED
-        defendant = self.getCurrentPlayer()  # defendant is the current player; the one who played the cards earlier
         if self.verbose:
-            print('pile:', self._pile)
+            print('Calling Bs')
         if self.log is not None:
-            self.log.write('Checking to see if Bs was called')
+            self.log.write('Calling Bs')
+        defendant = self.getCurrentPlayer()  # defendant is the current player; the one who played the cards earlier
         prosecutor.BSConfig(DISABLED)
         honesty = True  # assume the player told the truth, then change later if needed
         cards = []  # a local list of the cards the player played
@@ -288,31 +236,19 @@ class World:
             self.giveAllCards(defendant)
             self.updateMessage("%s was lying! The cards from the pile have been added to %s's hand." % (
                 defendant.name, defendant.name))
-        if self.verbose:
-            print('now pile is', self._pile)
-        if self.log is not None:
-            self.log.write("Now pile is %s\n" % self._pile)
         time.sleep(2)  # wait five seconds so that the message can be read # THIS DOESNT WORK
         # now it is next player's turn
         self.getNextPlayer(self.getCurrentPlayer()).takeTurn()
 
     def askBs(self, player):
         """Enable the buttons that allow a player to call (or not call) BS."""
-        # create a variable to keep track of which player to ask and initialize it to the next player after the current player
-        # should move into method of world
-        '''message = current.name + " played " + numToWord(current.getnumplayed()) + " " + numToStr(turn_num)
-        if current.numplayed > 1:  # if the player played more than one card, make the number word plural
-            message += "s"'''
         if self.verbose:
             print('Allowing to %s call BS' % player)
         if self.log is not None:
             self.log.write('Allowing to %s call BS' % player)
         self.getPreviousPlayer(player).BSConfig(DISABLED)  # don't allow that player to call bs anymore this turn
         if player == self.getCurrentPlayer():
-            if player.gethandlength() == 0:  # a player doesn't call BS on itself
-                #  duplicated code: could move into function
-                print(player.name, "wins!")  # change .name to getName()
-                sys.exit(0)
+            player.checkHandLength()
             self.getNextPlayer(player).takeTurn()  # get the next player and tell them to take a turn
         else:
             player.BSConfig(NORMAL)

@@ -1,41 +1,29 @@
-"""
-This program allows human and/or computer players to play the card game BS"""
-# STUFF TO FIX: Get from playing cards to asking BS, Create a stats window. Get PIL working to show cards. Create AIs.
-# Limit the number of players that can be created
-# Look at changing pile to deck object
-# override membership in Player so that if card in self returns True if the card is in the player's hand
-
-# Note: accessor methods for other programmers to access, in this context ok to access directly
-# Look into python properties
-# redundant try except is as efficient as it can be, try putting into a function
-# try creating a function validateCard
+"""This program allows human and/or computer players to play the card game BS.
+The program uses several different classes: Card, Player, Deck, World, and SetupWidget.
+The program starts by creating a World object to keep track of the players, the deck, etc.
+Then the program creates a setup window (an object of the class SetupWidget) using Tkinter that allows users to add players.
+The values from the setup window are validated (and, if valid, passed in to create a Player object and add it to the world)
+every time the ‘add player’ button is pressed. Then, the program allows users to play the game. Each time it is a player’s turn,
+the player can see their hand and select their Cards via a Tkinter window. The Cards are then added into the World’s pile.
+Once a player has taken their turn, other players are asked if they call BS, and if they do, the program checks to see
+if the current player was telling the truth and takes appropriate action, moving the Cards as needed. This continues
+until one player has no cards left. Interaction with the user(s) will occur through Tkinter windows (pressing buttons,
+checking checkboxes, etc.)."""
 
 # imports
 from world import *
-from deck import *
-from player import *
 from tkinter_for_cards import *
-from global_functions import *
 
-# global variables
-debug = False
-debug2 = False
-debug3 = False
 unit_tests = False
-debug4 = False
-debugsetup = False
-
 
 def setUpGame(logfile=None):  # fix logfile stuff
     """The code to set up the game"""
-    if debugsetup:
-        print('setting up game')
     # log = open(logfile, 'w')
     thisWorld = World(logfile=logfile, verbose=True)  # create a World  # change to log
     root = Tk()
     setupwindow = SetupWidget(world=thisWorld, master=root)  # create a setup window to set up the game
     root.mainloop()
-    thisWorld._deck.addAllCards()  # add all the cards to the deck
+    thisWorld.addAllCards()  # add all the cards to the deck
     thisWorld.deal()  # deal the cards to all the players
     thisWorld.createWindow()  # create the window to start the game
 
@@ -45,7 +33,6 @@ def setUpGame(logfile=None):  # fix logfile stuff
 logfile = open('test.txt', 'w')  # open the logfile
 logfile.write('hi')
 setUpGame(logfile=logfile)  # start the game # ERROR logfile not opening
-# gameBs(logfile='test.txt')
 logfile.close()
 if unit_tests:
     world = World(logfile='test.txt', verbose=True)
