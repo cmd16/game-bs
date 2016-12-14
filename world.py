@@ -1,6 +1,7 @@
 from deck import *
 from player import *
 # from BS_main import gameBs MOVED TO LATER IN THE FILE TO AVOID CIRCULAR IMPORTS
+import time
 
 class World:
     """A class to represent the world."""
@@ -14,7 +15,7 @@ class World:
         self._playerlist = []  # a list of the world's players
         self._bscalled = False  # this is basically just a global variable
         self._pile = []
-        self._turn_num = 1
+        self._turn_num = 0  # set to 0 because turn_num is incremented at the beginning of each player's turn
         self.verbose = verbose
         if self.log is not None:
             self.log.write('Created a World object.\n')
@@ -24,6 +25,16 @@ class World:
         self.start = None
         self.currentplayer = None
         self._text = None
+        self._message = None
+        self._message_var = None
+
+    def updateMessage(self, message):
+        """Change the message displayed in the window"""
+        if self.log is not None:
+            self.log.write("Updating the message to " + message)
+        if self.verbose:
+            print("Updating the message to", message)
+        self._message_var.set(message)
 
     def setCurrentPlayer(self, player):
         """Set the current player"""
@@ -52,12 +63,15 @@ class World:
         self.start = Button(self._window, text='start game',
                             command=self.startGame)  # later fix this to include logfile
         self.start.grid(row=0, column=len(self._playerlist)//2)  # grid the start button in the center on top
+        self._message_var = StringVar()
+        self._message = Message(self._window, textvariable=self._message_var)
+        self._message_var.set("Welcome to the game BS!")
+        self._message.grid(row=1, column=len(self._playerlist))
         for idx in range(len(self._playerlist)):
             self._playerlist[idx].createFrame(self._window, idx)  # tell each player to create their frame
-        self._text = Text(self._window)
+        '''self._text = Text(self._window)
         self._text.insert(INSERT, 'hi')  # from tutorialspoint. Error takes up a bunch of space
-        '''self._text.grid(row=0, column=len(self._playerlist))  # the column is at the end of the list of players commented out because it doesn't work
-        '''
+        self._text.grid(row=1, column=len(self._playerlist))  # the column is at the end of the list of players. commented out because it doesn't work'''
         self._window.mainloop()
 
     def startGame(self):
@@ -67,8 +81,16 @@ class World:
         if self.verbose:
             print("Starting game")
         self.start.grid_forget()
-        from global_functions import gameBs
-        gameBs(self)
+        for player in self.getPlayerList():
+            if player.findCard("Ace of Clubs") is not False:
+                self.setCurrentPlayer(player)
+                print("The player with the Ace of Clubs, %s, goes first." % self.getCurrentPlayer().name)
+                break
+        else:  # if somehow no player has the Ace of Clubs
+            self.setCurrentPlayer(self.getPlayerList()[0])
+            # adding in to deal with new functionality
+            self.updateTurnNum(1)
+        self.getCurrentPlayer().takeTurn()
 
     def updateTurnNum(self, turn_num):  # NOT USED
         """Update the turn number"""
@@ -88,6 +110,10 @@ class World:
             self._turn_num = 1
         else:
             self._turn_num += 1
+        if self.log is not None:
+            self.log.write("turn_num is" + str(self._turn_num)+"\n")
+        if self.verbose:
+            print("turn_num is", self._turn_num)
 
     def getTurnNum(self):
         """Accessor method to return turn_num"""
@@ -234,7 +260,7 @@ class World:
         if defendant.getHonesty():
             self.emptyPile(prosecutor)  # take a look at what this is doing
             # these need to move
-            print("%s was telling the truth! The cards from the pile have been added to %s's hand." % (
+            self.updateMessage("%s was telling the truth! The cards from the pile have been added to %s's hand." % (
                 defendant.name, prosecutor.name))
             # check to see if the hand is empty
             if defendant.gethandlength() == 0:
@@ -242,11 +268,12 @@ class World:
                 sys.exit(0)
         else:
             self.emptyPile(defendant)
-            print("%s was lying! The cards from the pile have been added to %s's hand." % (defendant.name, defendant.name))
+            self.updateMessage("%s was lying! The cards from the pile have been added to %s's hand." % (defendant.name, defendant.name))
         if self.verbose:
             print('now pile is', self._pile)
         if self.log is not None:
             self.log.write("Now pile is %s\n" % self._pile)
+        time.sleep(2)  # wait five seconds so that the message can be read # THIS DOESNT WORK
         # now it is next player's turn
         self.getNextPlayer(self.getCurrentPlayer()).takeTurn()
 

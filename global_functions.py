@@ -90,22 +90,6 @@ def nameToCardName(name):
         return nameNum + " of " + nameSuit
 
 
-def gameBs(world):
-    """The main code to play the game BS"""
-    # move into main loop
-    for player in world.getPlayerList():
-        if player.findCard("Ace of Clubs") is not False:
-            world.setCurrentPlayer(player)
-            print("The player with the Ace of Clubs, %s, goes first." % world.getCurrentPlayer().name)
-            break
-    else:  # if somehow no player has the Ace of Clubs
-        world.setCurrentPlayer(world.getPlayerList()[0])
-        # adding in to deal with new functionality
-        world.updateTurnNum(1)
-    world.getCurrentPlayer().takeTurn()
-    #log.close() # fix later
-
-
 # DELETE THIS MOVED TO WORLD
 def askBs(player, world):
     """Enable the buttons that allow a player to call (or not call) BS."""

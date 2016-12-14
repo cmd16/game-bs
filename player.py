@@ -118,6 +118,7 @@ class Player:
         self.world.setCurrentPlayer(self)  # tell the world to set it's current player to self
         self.world.incTurnNum()  # update the world's turn number
         self.world.resetbs()  # I DONT THINK THIS IS USED
+        self.world.updateMessage(self.name + "'s turn to play " + numToStr(self.world.getTurnNum()) + 's')
         self.tkConfigureShowHand(NORMAL)  # allow the player to click the 'show hand' button
 
     def BSConfig(self, state):
@@ -209,10 +210,10 @@ class Player:
         if self.log is not None:
             self.log.write(numToWord(self.numplayed))
         summary = self.name + " played " + numToWord(self.numplayed) + " " + numToStr(
-            self.world.getTurnNum())  # move this into log?
+            self.world.getTurnNum())  # record how many cards the player played and what number they should be
         if self.numplayed > 1:  # if the player played more than one card, make the number word plural
             summary += "s"
-        print(summary)  # fix this
+        self.world.updateMessage(summary)
         self.world.askBs(self.world.getNextPlayer(self))  # ask the next player if they call Bs
 
     def checkBoxes(self):
