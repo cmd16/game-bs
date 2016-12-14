@@ -71,11 +71,11 @@ class SetupWidget:
         If the input is valid, create a player with the given input and add it to self's world's list of players."""
         self._invalidlabel.pack_forget()
         self._validlabel.pack_forget()
-        if not self._playername.get().isalpha():
+        if not self._playername.get().isalpha():  # check to see if the name is alphanumeric characters
             self._invalidlabel['text'] = "Invalid input: please use only letters with no spaces."
             self._invalidlabel.pack()
             return
-        for item in self._world._playerlist:
+        for item in self._world.getPlayerList():
             if self._playername.get() == item.name:
                 self._invalidlabel['text'] = "Invalid input: another player already has the name %s." % item.name
                 self._invalidlabel.pack()
@@ -104,35 +104,6 @@ class SetupWidget:
         print('difficulty:', self._difficultyvar.get(), 'risk:', self._riskvar.get(), 'pb:', self._pbvar.get(),
               'verbose:', self._verbosevar.get())
 
-
-# NOT USED
-class worldStats:
-    def __init__(self, world, master=None):
-        self._world = world
-        self._window = master
-        self._players = []
-
-    def showWorld(self):
-        for player in self._world.getPlayerList():
-            print(player.name)
-            print(player.gethandlength())
-            self._players.append([player, Label(self._window,text=player.name), Label(self._window, text=str(player.gethandlength()) + 'cards')])
-        for idx in range(len(self._players)):
-            self._players[idx][1].grid(column=idx, row=0)
-            self._players[idx][2].grid(column=idx, row=1)
-
-# NOT USED
-if unit2:
-    thisWorld = World()
-    root = Tk()
-    setupwindow = SetupWidget(world=thisWorld, master=root)
-    root.mainloop()
-    thisWorld._deck.addAllCards()
-    thisWorld.deal()
-    master = Tk()
-    stats = worldStats(thisWorld, master)
-    stats.showWorld()
-    master.mainloop()
 
 if unit_tests:
     this_world = World()

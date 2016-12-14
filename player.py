@@ -3,6 +3,7 @@ from tkinter import *
 from global_functions import *
 
 debug = False
+
 class Player:
     """A class to represent players. Each player has a name and a hand."""
     def __init__(self, name, verbose=False, world=None, logfile=None):
@@ -20,6 +21,7 @@ class Player:
             print("No logfile was given")
             self.log = None"""
         self.log = logfile  # a file object
+        # these next few variables are used for the to display the cards
         self.frame = None
         self.name_label = None
         self.hand_len_label = None
@@ -27,18 +29,18 @@ class Player:
         self.cardframe = None
         self.bsbutton = None
         self.notbsbutton = None
+        self.scrollbar = None
         if self.log is not None:
             self.log.write(str(self) + ' created a Player object\n')
 
-
     def createFrame(self, window, column):
-        """Create a frame for displaying player stats"""
-        self.frame = Frame(window)
+        """Create a frame for displaying player stats and buttons"""
+        self.frame = Frame(window)  # a frame to hold the buttons
         self.frame.grid(column=column, row=1)
         self.name_label = Label(self.frame, text=self.name)
         self.name_label.grid()
-        self.hand_len_label = Label(self.frame, text=str(self.gethandlength()) + ' cards')
-        self.hand_len_label.grid(row=2)  # changing checkBs so that it gets current player
+        self.hand_len_label = Label(self.frame, text=str(self.gethandlength()) + ' cards')  # a label to show the number of cards a player has
+        self.hand_len_label.grid(row=2)
         self.bsbutton = Button(self.frame, text='Call BS', command=lambda: self.world.checkBs(self), state=DISABLED)
         self.bsbutton.grid(row=3)
         self.notbsbutton = Button(self.frame, text="Don't call BS", command=lambda: askBs(self.world.getNextPlayer(self),
@@ -66,7 +68,7 @@ class Player:
         return self.numplayed
 
     def getHonesty(self):
-        """Accessor method to return if the player lied"""
+        """Accessor method to return true if the player lied"""
         return self.honesty
 
     def sortHand(self):
@@ -134,7 +136,7 @@ class Player:
 
     def tkSelectHand(self):
         """Shows the player's hand and allows the player to select up to 4 cards."""
-        self.tkConfigureShowHand(DISABLED)
+        self.tkConfigureShowHand(DISABLED)  # disable the button that allows the player to show their cards
         self.cardframe = Frame(self.frame)
         self.cardframe.grid()
         self.tkhand = [[x, IntVar()] for x in self.hand]
@@ -145,6 +147,7 @@ class Player:
         for idx in range(len(self.tkhand)):
             self.tkhand[idx].append(Checkbutton(self.cardframe, text=str(self.tkhand[idx][0]), variable=self.tkhand[idx][1],
                                                 command=self.checkBoxes))
+            # create checkbutton to allow players to select their cards, storing the variables and frames within them
             self.tkhand[idx][2].grid()
         submit = Button(self.cardframe, text="Submit", command=self.playCards)
         submit.grid()
@@ -152,7 +155,7 @@ class Player:
     def playCards(self):
         """Play cards into the world's pile. Check if the player lied or not and record that info. Also record how many
         cards were played."""
-        numplayed = 0
+        self.numplayed = 0  # keep track of how many card's were played this round
         self.honesty = True
         for idx in range(len(self.tkhand)):
             if self.tkhand[idx][1].get() == 1:
@@ -162,22 +165,28 @@ class Player:
                     self.log.write(self.name + ' found a selected card: %s\n' % self.tkhand[idx][0])
                 # put in a method to remove the card from the hand and add it to the deck world's deck. Then change checkBs
                 self.world._pile.append(self.tkhand[idx][0])  # ok so this is what I need to change
-                self.hand.remove(self.tkhand[idx][0])  # so this function didn't actually work # so I need to change this
-                numplayed += 1
+                self.hand.remove(self.tkhand[idx][0])  # so this function didn't actually work
+                #  so I need to change this
+                self.numplayed += 1
                 if self.tkhand[idx][0]._number != self.world.getTurnNum():
                     if self.verbose:
                         print(self.name, 'found a bluff card:', self.tkhand[idx][0])
                     if self.log is not None:
                         self.log.write(self.name + ' found a bluff card: %s\n' % self.tkhand[idx][0])
                     self.honesty = False
-        self.numplayed = numplayed
-        self.tkConfigureShowHand(DISABLED)
+        self.tkConfigureShowHand(DISABLED)  # disable the show hand button
         self.cardframe.destroy()
         self.updateWindow()
-        message = self.name + " played " + numToWord(self.getnumplayed()) + " " + numToStr(self.world.getTurnNum())  # move this into log?
+        if self.numplayed == 0:  # if the player played no cards, make them try again
+            print('No cards were played.')
+            self.tkSelectHand()
+            return
+        print(numToWord(self.numplayed))
+        debugging = numToStr(self.world.getTurnNum())
+        summary = self.name + " played " + numToWord(self.numplayed) + " " + numToStr(self.world.getTurnNum())  # move this into log?
         if self.numplayed > 1:  # if the player played more than one card, make the number word plural
-            message += "s"
-        print(message)  # fix this
+            summary += "s"
+        print(summary)  # fix this
         self.world.askBs(self.world.getNextPlayer(self))
 
     def checkBoxes(self):
@@ -190,7 +199,7 @@ class Player:
         numchecked = 0
         for idx in range(len(self.tkhand)):
             if debug:
-                print(self.name, 'self.tkhand[%d] is' %idx, self.tkhand[idx])
+                print(self.name, 'self.tkhand[%d] is' % idx, self.tkhand[idx])
             if self.tkhand[idx][1].get() == 1:
                 if self.verbose:
                     print(self.name, 'found a checked box:', self.tkhand[idx][0])
@@ -282,6 +291,6 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
 
 if __name__ == "__main__":
     print('this worked')
-    p = Player("joe", True, logfile='test.txt')
+    p = Player("joe", True, logfile=open('test.txt', 'w'))
     assert p.name == 'joe'
     assert p.verbose

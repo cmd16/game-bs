@@ -37,6 +37,8 @@ class World:
         """Return the current player"""
         if self.log is not None:
             self.log.write("Returning the current player\n")
+        if self.verbose:
+            print("Returning the current player")
         return self.currentplayer
 
     def createWindow(self):
@@ -55,8 +57,13 @@ class World:
             self._playerlist[idx].createFrame(self._window, idx)  # tell each player to create their frame
         self._text = Text(self._window)
         self._text.insert(INSERT, 'hi')  # from tutorialspoint. Error takes up a bunch of space
-        '''self._text.grid(row=0, column=len(self._playerlist))  # the column is at the end of the list of players'''
+        '''self._text.grid(row=0, column=len(self._playerlist))  # the column is at the end of the list of players commented out because it doesn't work
+        '''
         self._window.mainloop()
+
+    def getPlayerList(self):
+        """Accessor method for self.player_list"""
+        return self._playerlist
 
     def startGame(self):
         """Start the game by playing"""
@@ -68,7 +75,7 @@ class World:
         from global_functions import gameBs
         gameBs(self)
 
-    def updateTurnNum(self, turn_num):
+    def updateTurnNum(self, turn_num):  # NOT USED
         """Update the turn number"""
         if self.log is not None:
             self.log.write("Updating turn number\n")
@@ -261,7 +268,8 @@ class World:
             self.log.write('Allowing to %s call BS' % player)
         self.getPreviousPlayer(player).BSConfig(DISABLED)  # don't allow that player to call bs anymore this turn
         if player == self.getCurrentPlayer():
-            if player.gethandlength() == 0:  # duplicated code: could move into function
+            if player.gethandlength() == 0:  # a player doesn't call BS on itself
+                #  duplicated code: could move into function
                 print(player.name, "wins!")  # change .name to getName()
                 sys.exit(0)
             self.getNextPlayer(player).takeTurn()  # get the next player and tell them to take a turn
