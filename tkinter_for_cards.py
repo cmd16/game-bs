@@ -6,7 +6,7 @@ from deck import *
 unit_tests = False
 unit2 = False
 
-class Confirm:
+class Confirm:  # NOT USED
     """A class to ask players whether they call BS."""
     def __init__(self, master=None, message=None, ycommand=None, ncommand=None):
         self._window = master

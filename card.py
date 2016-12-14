@@ -69,3 +69,5 @@ window.mainloop()'''
 
 if '__name__' == '__main__':
     c = Card(3, 2)
+    assert c.get_number() == 3
+    assert c._suit == 2

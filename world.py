@@ -7,7 +7,7 @@ class World:
     def __init__(self, deck=None, logfile=None, verbose=False):
         """Create a world object"""
         self.log = logfile
-        if deck == None:  # if no Deck is given, create a Deck
+        if deck is None:  # if no Deck is given, create a Deck
             self._deck = Deck()
         else:
             self._deck = deck
@@ -49,7 +49,6 @@ class World:
             print("Creating the world's window")
         self._window = Tk()
         self._window.title('Playing BS')
-        #from BS_main import gameBs
         self.start = Button(self._window, text='start game',
                             command=self.startGame)  # later fix this to include logfile
         self.start.grid(row=0, column=len(self._playerlist)//2)  # grid the start button in the center on top
@@ -60,10 +59,6 @@ class World:
         '''self._text.grid(row=0, column=len(self._playerlist))  # the column is at the end of the list of players commented out because it doesn't work
         '''
         self._window.mainloop()
-
-    def getPlayerList(self):
-        """Accessor method for self.player_list"""
-        return self._playerlist
 
     def startGame(self):
         """Start the game by playing"""
