@@ -1,3 +1,7 @@
+"""Catherine DeJager (cmd38)
+12/15/2016
+CS 106 Final Project: BS
+A module to model a deck of cards."""
 
 from random import shuffle
 from player import *

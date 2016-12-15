@@ -1,3 +1,8 @@
+"""Catherine DeJager (cmd38)
+12/15/2016
+CS 106 Final Project: BS
+A module to model a deck of cards.
+Functions used by multiple files in the project."""
 
 def cardNumToStr(n):
     """takes the number value of a card and returns a string."""

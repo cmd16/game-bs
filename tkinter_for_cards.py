@@ -1,3 +1,9 @@
+"""Catherine DeJager (cmd38)
+12/15/2016
+CS 106 Final Project: BS
+A widget to set up the game by getting user input (names, computer player options, etc.) and then creating Player
+    objects using the given input as parameters."""
+
 from tkinter import *
 from player import *
 from world import *

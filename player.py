@@ -1,9 +1,13 @@
+"""Catherine DeJager (cmd38)
+12/15/2016
+CS 106 Final Project: BS
+A class to represent players. Each player has a name and a hand of Cards."""
 
 from tkinter import *
 from global_functions import *
 
 class Player:
-    """A class to represent players. Each player has a name and a hand."""
+    """A class to represent players. Each player has a name and a hand of Cards."""
 
     def __init__(self, name, verbose=False, world=None, logfile=None):
         """Players start out with a name and an empty hand."""

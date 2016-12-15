@@ -1,4 +1,7 @@
-"""This program allows human and/or computer players to play the card game BS.
+"""Catherine DeJager (cmd38)
+12/15/2016
+CS Final Project: BS
+This program allows human and/or computer players to play the card game BS.
 The program uses several different classes: Card, Player, Deck, World, and SetupWidget.
 The program starts by creating a World object to keep track of the players, the deck, etc.
 Then the program creates a setup window (an object of the class SetupWidget) using Tkinter that allows users to add players.

@@ -1,9 +1,13 @@
+"""Catherine DeJager (cmd38)
+12/15/2016
+CS 106 Final Project: BS
+A class to represent playing cards."""
 
 from tkinter import *
 from global_functions import cardNumToStr
 
 class Card:
-    """A class to represent playing cards. Card objects should not be changed."""
+    """A class to represent playing cards. Card objects should be immutable."""
     def __init__(self, number, suit):
         """Each card has an integer from 1 to 14 representing a number and an integer from 1 to 4 representing a suit.
         Each card also has a string representation."""

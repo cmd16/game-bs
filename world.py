@@ -1,3 +1,8 @@
+"""Catherine DeJager (cmd38)
+12/15/2016
+CS 106 Final Project: BS
+A class to represent the world. The world keeps track of the players, the deck, the current turn number, etc."""
+
 from deck import *
 from player import *
 import time
