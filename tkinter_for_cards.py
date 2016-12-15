@@ -22,7 +22,7 @@ class SetupWidget:
         self._cpuvar = IntVar()
         self._cpuoption = Checkbutton(self._window, variable=self._cpuvar, text='Computer player?', command=self.toggleCpuOptions)
         self._playername.set("Enter name here")
-        self._addplayerbutton = Button(self._window, text="Add player", command=self.createPlayer)  # later disable
+        self._addplayerbutton = Button(self._window, text="Add player", command=self.createPlayer)
         self._addplayerbutton.pack(side=BOTTOM)
         self._invalidlabel = Label(self._window)
         self._validlabel = Label(self._window)

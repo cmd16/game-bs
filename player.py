@@ -44,8 +44,7 @@ class Player:
                                state=DISABLED)  # a button that allows the player to call Bs
         self.bsbutton.grid(row=3)
         self.notbsbutton = Button(self.frame, text="Don't call BS",
-                                  command=lambda: askBs(self.world.getNextPlayer(self),
-                                                        self.world), state=DISABLED)
+                                  command=lambda: self.world.askBs(self.world.getNextPlayer(self)), state=DISABLED)
         self.notbsbutton.grid(row=4)
         self.showhandbutton = Button(self.frame, text="Show hand", command=self.tkSelectHand, state=DISABLED)
         self.showhandbutton.grid(row=5)
@@ -82,7 +81,7 @@ class Player:
             print(self.name, 'Sorting hand.')
         if self.log is not None:
             self.log.write(self.name + ' Sorting hand\n')
-        self.hand.sort(key=lambda x: x._number)
+        self.hand.sort(key=lambda x: x.get_number())
 
     def gethandlength(self):
         """Gets the length of the player's hand."""
@@ -167,7 +166,7 @@ class Player:
                 self.hand.remove(self.tkhand[idx][0])  # so this function didn't actually work
                 #  so I need to change this
                 self.numplayed += 1
-                if self.tkhand[idx][0].get_number != self.world.getTurnNum():
+                if self.tkhand[idx][0].get_number() != self.world.getTurnNum():
                     if self.verbose:
                         print(self.name, 'found a bluff card:', self.tkhand[idx][0])
                     if self.log is not None:
@@ -184,7 +183,7 @@ class Player:
             print(numToWord(self.numplayed))
         if self.log is not None:
             self.log.write(numToWord(self.numplayed))
-        self.world.playCards(cards_played)  # add the played cards to the world's deck
+        self.world.playCards(self, cards_played)  # add the played cards to the world's deck
         summary = self.name + " played " + numToWord(self.numplayed) + " " + cardNumToStr(
             self.world.getTurnNum())  # record how many cards the player played and what number they should be
         if self.numplayed > 1:  # if the player played more than one card, make the number word plural
@@ -240,6 +239,23 @@ class Player:
             self.log.write(self.name + ' Hand is now %s\n' % self.hand)
         self.updateWindow()
 
+    def removeCards(self, cardSeq):
+        """Removes the given cards from the player's hand"""
+        if self.verbose:
+            print(self.name, 'Removing', cardSeq, 'from hand.')
+        if self.log is not None:
+            self.log.write(self.name + ' removing %s from hand.\n' % cardSeq)
+        for item in cardSeq:
+            try:
+                self.hand.remove(self.findCard(str(item)))
+            except ValueError:
+                print(item, "error")
+        if self.verbose:
+            print(self.name, 'Hand is now', self.hand)
+        if self.log is not None:
+            self.log.write(self.name + ' hand is now %s\n' % self.hand)
+        self.updateWindow()
+
     def findCard(self, name):
         """Searches the player's hand for the card of a given name. If the card is found, return the card."""
         if self.verbose:
@@ -260,13 +276,10 @@ class Player:
         return False
 
 
-class Cpu(
-    Player):  # a cpu is still a player, so it inherits from the Player class, but because it's not human, it works differently
+class Cpu(Player):  # a cpu is still a player, so it inherits from the Player class, but because it's not human, it works differently
     # __init__ overrides the parent class because the cpu needs some attributes that human players don't need
     def __init__(self, name, difficulty, risk, pb, verbose, world=None, logfile=None):
         Player.__init__(self, name, verbose, world, logfile)
-        self.name = name
-        self.hand = []
         self.difficulty = difficulty  # an integer that represents how hard it is to beat the computer
         # harder players have more/better strategies
         self.risk = risk  # an integer that represents how likely the computer is to accuse another player of lying

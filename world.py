@@ -226,6 +226,8 @@ class World:
             if self._deck[i].get_number() != self._turn_num:  # if the number of the card doesn't match the number that should have been played
                 honesty = False
         self.updateMessage(str(cards))  # show a list of the cards that were played
+        print(cards)
+        time.sleep(2)
         if self.verbose:
             print('cards:', cards)
         if self.log is not None:
@@ -241,7 +243,6 @@ class World:
             self.giveAllCards(defendant)
             self.updateMessage("%s was lying! The cards from the pile have been added to %s's hand." % (
                 defendant.name, defendant.name))
-        time.sleep(2)  # wait five seconds so that the message can be read # THIS DOESNT WORK
         # now it is next player's turn
         self.getNextPlayer(self.getCurrentPlayer()).takeTurn()
 
