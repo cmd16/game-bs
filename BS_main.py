@@ -32,10 +32,9 @@ def setUpGame(logfile=None):  # fix logfile stuff
 
 
 # main code
-# how to ask for a logfile
 logfile = open('test.txt', 'w')  # open the logfile
 logfile.write('hi')
-setUpGame(logfile=logfile)  # start the game # ERROR logfile not opening
+setUpGame(logfile=logfile)  # start the game
 logfile.close()
 if unit_tests:
     world = World(logfile='test.txt', verbose=True)
