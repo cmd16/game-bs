@@ -3,8 +3,31 @@
 CS 106 Final Project: BS
 A class to represent players. Each player has a name and a hand of Cards."""
 
+"""
+Documentation for AIs - bluffing:
+    Difficulty level
+        Play a random card
+        Figure out which card they would need to play next and don’t play that, then pick a random card from all the others
+        Play whichever card they have the most of that they won’t play next # fix this?
+        Play whichever card they will play last
+        Play whichever card they will play last that they have the most of # fix this?
+    Risk level
+        Always play one card
+        Sometimes play two cards
+        Sometimes play three cards
+        Sometimes play four cards
+        Sometimes play one or more bluff cards with real cards
+    Random level
+        Always follow pattern
+        5% chance of choosing a random card
+        10% chance of choosing a random card
+        15% chance of choosing a random card
+        20% chance of choosing a random card
+"""
+
 from tkinter import *
 from global_functions import *
+import random
 
 class Player:
     """A class to represent players. Each player has a name and a hand of Cards."""
@@ -29,7 +52,7 @@ class Player:
         self.notbsbutton = None
         self.scrollbar = None
         if self.log is not None:
-            self.log.write(str(self) + ' created a Player object\n')
+            self.log.write(self.name + 'created a Player object\n')
 
     def createFrame(self, window, column):
         """Create a frame for displaying player stats and buttons"""
@@ -125,7 +148,6 @@ class Player:
 
     def tkSelectHand(self):
         """Shows the player's hand and allows the player to select up to 4 cards."""
-        # LOOK AT ERROR AND FIGURE OUT
         self.tkConfigureShowHand(DISABLED)  # disable the button that allows the player to show their cards
         self.cardframe = Frame(self.frame)  # create a frame in which to display the cards
         self.cardframe.grid()
@@ -149,7 +171,7 @@ class Player:
                         command=self.playCards)  # create a button to allow the player to submit their cards
         submit.grid()
 
-    def playCards(self):
+    def playCards(self, card_seq=None):
         """Play cards into the world's pile. Check if the player lied or not and record that info. Also record how many
         cards were played."""
         self.numplayed = 0  # keep track of how many cards were played this round
@@ -174,7 +196,6 @@ class Player:
                     self.honesty = False
         self.tkConfigureShowHand(DISABLED)  # disable the show hand button
         self.cardframe.destroy()  # destroy the card frame
-        self.updateWindow()  # update the window
         if self.numplayed == 0:  # if the player played no cards, make them try again
             print('No cards were played.')
             self.tkSelectHand()
@@ -278,7 +299,7 @@ class Player:
 
 class Cpu(Player):  # a cpu is still a player, so it inherits from the Player class, but because it's not human, it works differently
     # __init__ overrides the parent class because the cpu needs some attributes that human players don't need
-    def __init__(self, name, difficulty, risk, pb, verbose, world=None, logfile=None):
+    def __init__(self, name, difficulty, risk, pb, verbose, random, world=None, logfile=None):
         Player.__init__(self, name, verbose, world, logfile)
         self.difficulty = difficulty  # an integer that represents how hard it is to beat the computer
         # harder players have more/better strategies
@@ -293,9 +314,115 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
         return self.name + ', ' + str(len(self.hand)) + ' cards, ' + 'difficulty level: ' + str(self.difficulty) \
                + ', risk level: ' + str(self.risk) + ', pb: ' + str(self.pb) + ', verbose: ' + str(self.verbose)
 
+    def findCardsByNum(self, number):
+        """Find all the cards of a given number"""
+        if self.verbose:
+            print("Finding all cards of number " + str(number))
+        if self.log is not None:
+            self.log.write("Finding all cards of number " + str(number))
+        result = []
+        for card in self.hand:
+            if card.get_number() == number:
+                result.append(card)
+        return result
+
+    def tkSelectHand(self):
+        """The method to select cards. Starts out same as regular players, then does calculations."""
+        if self.verbose:
+            print(self.name, 'selecting hand')
+        if self.log is not None:
+            self.log.write(self.name + " selecting hand")
+        self.tkConfigureShowHand(DISABLED)  # disable the button that allows the player to show their cards
+        cards_played = []
+        for card in self.hand:
+            if card.get_number() == self.world.getTurnNum():  # check to see if there are any honest cards
+                cards_played.append(card)
+        if cards_played:  # if there are honest cards, then play them # DOES THIS WORK
+            if self.verbose:
+                print(self.name + " found honest cards: " + str(cards_played))
+            if self.log is not None:
+                self.log.write(self.name + " found honest cards: " + str(cards_played) + "\n")
+            self.playCards(cards_played)
+        else:  # bluff
+            if self.verbose:
+                print(self.name + " bluffing")
+            if self.log is not None:
+                self.log.write(self.name + " bluffing")
+            # num_cards_to_play = random.randint(1, self.risk)  # choose how many cards to play this round
+            card_num_list = [x.get_number() for x in self.hand]  # create a list to hold the cards and how many of each card there is
+            card_freq_list = []
+            for num in range(1, 15):
+                count = card_num_list.count(num)
+                if 0 < count <= self.risk:
+                    card_freq_list.append([num, count])  # append the number of the card and the frequency of that card
+            if card_freq_list is None:  # if there aren't any cards with a low enough frequency, just get all the cards
+                for num in range(1, 15):
+                    count = card_num_list.count(num)
+                    card_freq_list.append([num, count])
+            if self.verbose:
+                print(self.name + ' card num list: ' + str(card_num_list))
+            if self.log is not None:
+                self.log.write(self.name + ' card num list: ' + str(card_num_list))
+            if self.verbose:
+                print(self.name + ' card frequency list: ' + str(card_freq_list))
+            if self.log is not None:
+                self.log.write(self.name + ' card frequency list: ' + str(card_freq_list))
+            if self.difficulty == 1:
+                card_minilist = random.choice(card_freq_list)  # pick a random card
+                if self.verbose:
+                    print(self.name + " random choice of " + card_minilist)
+                if self.log is not None:
+                    self.log.write(self.name + " random choice of " + card_minilist)
+                # HOLD OFF ON THIS
+                cards_played.extend(self.findCardsByNum(card_minilist[0]))  # find all the cards of that number and play them
+            elif self.difficulty == 2:
+                sys.exit('Cpu difficulty 2 not implemented yet')
+                next_num = self.world.getTurnNum() + self.world.getNumPlayers()  # calculate which card would be played next
+                # FIX THIS
+                while True:
+                    check = self.tkhand[random.randint(len(self.tkhand))]
+                    if check[0].get_number() != next_num:
+                        break
+                check[1] = 1  # check the checkbox
+            elif self.difficulty == 3:
+                sys.exit('Cpu difficulty 3 not implemented yet')
+                next_num = self.world.getTurnNum() + self.world.getNumPlayers()
+                most_num = 0  # the number of the card that the Cpu has the most of
+                # FIX THIS
+                for j in range(len(self.tkhand)):
+                    pass
+            if self.verbose:
+                print(self.name, "played " + str(cards_played))
+            if self.log is not None:
+                self.log.write(self.name + " played " + str(cards_played))
+            self.playCards(cards_played)
+
+    def playCards(self, card_seq=None):
+        """The Cpu way to play cards (cards to play are in a list, not in the tkhand). card_seq=None to match the signature
+        of the method in the parent class."""
+        if self.verbose:
+            print(self.name + " playing " + str(card_seq))
+        if self.log is not None:
+            self.log.write(self.name + " playing " + str(card_seq))
+        self.numplayed = len(card_seq)
+        self.world.playCards(self, card_seq)
+        print(numToWord(self.numplayed))
+        print(cardNumToStr(self.world.getTurnNum()))
+        summary = self.name + " played " + numToWord(self.numplayed) + " " + cardNumToStr(
+            self.world.getTurnNum())  # record how many cards the player played and what number they should be
+        if self.numplayed > 1:  # if the player played more than one card, make the number word plural
+            summary += "s"
+        self.world.updateMessage(summary)
+        self.world.askBs(self.world.getNextPlayer(self))  # ask the next player if they call Bs
+
 
 if __name__ == "__main__":
     print('this worked')
     p = Player("joe", True, logfile=open('test.txt', 'w'))
-    assert p.name == 'hi'
+    assert p.name == 'joe'
     assert p.verbose
+    # name difficulty risk pb verbose random
+    player = Cpu('c', 1, 1, False, True, 1)
+    root = Tk()
+    player.createFrame(root, 1)
+    root.mainloop()

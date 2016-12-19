@@ -119,10 +119,18 @@ class World:
 
     def addAllCards(self):
         """Add all the cards to the world's deck."""
+        if self.verbose:
+            print("Adding all the cards to the world's deck")
+        if self.log is not None:
+            self.log.write("Adding all the cards to the world's deck\n")
         self._deck.addAllCards()
 
     def giveAllCards(self, player):
         """Give all the deck's cards to the specified player"""
+        if self.verbose:
+            print("Giving all the cards to " + str(player))
+        if self.log is not None:
+            self.log.write("Giving all the cards to " + str(player) + '\n')
         self._deck.giveAllCards(player)
 
     def getPlayerList(self):
@@ -131,17 +139,22 @@ class World:
             self.log.write("Returning the world's list of players\n")
         return self._playerlist
 
-    def createPlayer(self, name, verbose=False, difficulty=None, risk=None, pb=None):
+    def createPlayer(self, name, verbose=False, difficulty=None, risk=None, pb=None, random=None):
         """Create a Player and add it to the list of players. If given computer values, then create a Cpu."""
         # if None is not in (difficulty, risk, pb, verbose):
         if difficulty is not None:
             if self.log is not None:
                 self.log.write("Creating a Cpu object: name %s difficulty %d risk %d pb %s verbose %s\n" % (name, difficulty,
                                                                                                      risk, pb, verbose))
-            self._playerlist.append(Cpu(name, difficulty, risk, pb, verbose, world=self, logfile=self.log))
+            if self.verbose:
+                print("Creating a Cpu object: name %s difficulty %d risk %d pb %s verbose %s" % (name, difficulty,
+                                                                                                     risk, pb, verbose))
+            self._playerlist.append(Cpu(name, difficulty, risk, pb, verbose, random, world=self, logfile=self.log))
         else:
             if self.log is not None:
                 self.log.write('Creating a Player object: name %s verbose %s\n' % (name, verbose))
+            if self.verbose:
+                print('Creating a Player object: name %s verbose %s' % (name, verbose))
             self._playerlist.append(Player(name, verbose, world=self, logfile=self.log))
 
     def getPlayerNameStrings(self):  # USED FOR DEBUGGING ONLY
@@ -163,6 +176,8 @@ class World:
         """Get the number of players"""
         if self.log is not None:
             self.log.write('Getting the number of players.\n')
+        if self.verbose:
+            print("Getting the number of players")
         return len(self._playerlist)
 
     def deal(self):

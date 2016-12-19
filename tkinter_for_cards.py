@@ -32,6 +32,9 @@ class SetupWidget:
         self._riskvar = IntVar()
         self._riskslider = Scale(self._window, variable=self._riskvar, label='Risk level:',
                                  orient=HORIZONTAL, from_=1, to=5, sliderlength=15)
+        self._randomvar = IntVar()
+        self._randomslider = Scale(self._window, variable=self._randomvar, label='Randomness level:', orient=HORIZONTAL,
+                                   from_=1, to=5, sliderlength=15)
         self._pbvar = BooleanVar()
         self._pbcheckbox = Checkbutton(self._window, variable=self._pbvar, text='Do you want the computer to tell you when it has successfully lied?')
         self._verbosevar = BooleanVar()
@@ -57,7 +60,8 @@ class SetupWidget:
         self._validlabel.config(text='Player added: ' + self._playername.get())
         self._validlabel.pack()
         if self._cpuvar.get() == 1:
-            self._world.createPlayer(self._playername.get(), self._riskvar.get(), self._pbvar.get(), self._verbosevar.get())
+            self._world.createPlayer(self._playername.get(), self._verbosevar.get(), self._difficultyvar.get(),
+                                     self._riskvar.get(), self._pbvar.get(), self._randomvar.get())
         else:
             self._world.createPlayer(self._playername.get(), self._verbosevar.get())
 
@@ -67,10 +71,12 @@ class SetupWidget:
             self._difficultyslider.pack()
             self._riskslider.pack()
             self._pbcheckbox.pack()
+            self._randomslider.pack()
         else:
             self._difficultyslider.pack_forget()
             self._riskslider.pack_forget()
             self._pbcheckbox.pack_forget()
+            self._randomslider.pack_forget()
 
     def printcpuvalues(self):
         """Prints the values of the input for the cpu options. This method used for debugging only."""
