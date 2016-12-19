@@ -19,10 +19,6 @@ class World:
         self._playerlist = []  # a list of the world's players
         self._turn_num = 0  # set to 0 because turn_num is incremented at the beginning of each player's turn
         self.verbose = verbose
-        if self.log is not None:
-            self.log.write('Created a World object.\n')
-        if self.verbose:
-            print('Created a World object.')
         self._window = None
         self.start = None
         self.currentplayer = None
@@ -31,6 +27,14 @@ class World:
         self._message_var = None
         self._card_stat = None
         self._card_stat_var = None
+        if self.log is not None:
+            self.log.write('Created a World object.\n')
+        if self.verbose:
+            print('Created a World object.')
+
+    def getDeckLen(self):
+        """Return the number of cards in the deck"""
+        return self._deck.getNumCards()
 
     def updateMessage(self, message):
         """Change the message displayed in the window"""
@@ -273,3 +277,5 @@ class World:
             self.getNextPlayer(player).takeTurn()  # get the next player and tell them to take a turn
         else:
             player.BSConfig(NORMAL)
+            if isinstance(player, Cpu):
+                player.calculateBs()

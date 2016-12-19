@@ -23,11 +23,33 @@ Documentation for AIs - bluffing:
         10% chance of choosing a random card
         15% chance of choosing a random card
         20% chance of choosing a random card
+Documentation for AIs - calling BS:
+    Difficulty level
+        If self has the cards such that the opponent can’t possibly have as many cards as they played, then call bs
+        Look at cards moved when bs is called and use that to estimate what each player has
+        Look at what each player claims to have played and use that to estimate where cards are
+        Look at player bluffing patterns and use that to estimate where cards are
+        Look at at player calling bs patterns and use that to estimate where cards are
+    Risk level
+        If the pile is 2 cards or less then call bs
+        If the pile is 4 cards or less than call bs
+        If the pile is 6 cards or less then call bs
+        If the pile is 8 cards or less then call bs
+        If the pile is 10 cards or less then call bs
+    Random level
+        Always follow pattern
+        5% chance of switching choice
+        10% chance of switching choice
+        15% chance of switching choice
+        20% chance of switching choice
 """
 
 from tkinter import *
 from global_functions import *
 import random
+
+player_tests = False
+cpu_tests = False  # look at later
 
 class Player:
     """A class to represent players. Each player has a name and a hand of Cards."""
@@ -317,14 +339,22 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
     def findCardsByNum(self, number):
         """Find all the cards of a given number"""
         if self.verbose:
-            print("Finding all cards of number " + str(number))
+            print(self.name + " finding all cards of number " + str(number))
         if self.log is not None:
-            self.log.write("Finding all cards of number " + str(number))
+            self.log.write(self.name + " finding all cards of number " + str(number) + "\n")
         result = []
         for card in self.hand:
             if card.get_number() == number:
                 result.append(card)
         return result
+
+    def countCardsByNum(self, number):
+        """Count the occurrences of cards of a given number"""
+        if self.verbose:
+            print(self.name + " counting all cards of number " + str(number))
+        if self.log is not None:
+            self.log.write(self.name + " counting all cards of number " + str(number) + "\n")
+        return len(self.findCardsByNum(number))
 
     def tkSelectHand(self):
         """The method to select cards. Starts out same as regular players, then does calculations."""
@@ -355,10 +385,11 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
                 count = card_num_list.count(num)
                 if 0 < count <= self.risk:
                     card_freq_list.append([num, count])  # append the number of the card and the frequency of that card
-            if card_freq_list is None:  # if there aren't any cards with a low enough frequency, just get all the cards
+            if len(card_freq_list) == 0:  # if there aren't any cards with a low enough frequency, just get all the cards
                 for num in range(1, 15):
                     count = card_num_list.count(num)
-                    card_freq_list.append([num, count])
+                    if count > 0:
+                        card_freq_list.append([num, count])
             if self.verbose:
                 print(self.name + ' card num list: ' + str(card_num_list))
             if self.log is not None:
@@ -370,9 +401,9 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
             if self.difficulty == 1:
                 card_minilist = random.choice(card_freq_list)  # pick a random card
                 if self.verbose:
-                    print(self.name + " random choice of " + card_minilist)
+                    print(self.name + " random choice of " + str(card_minilist))
                 if self.log is not None:
-                    self.log.write(self.name + " random choice of " + card_minilist)
+                    self.log.write(self.name + " random choice of " + str(card_minilist))
                 # HOLD OFF ON THIS
                 cards_played.extend(self.findCardsByNum(card_minilist[0]))  # find all the cards of that number and play them
             elif self.difficulty == 2:
@@ -415,8 +446,28 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
         self.world.updateMessage(summary)
         self.world.askBs(self.world.getNextPlayer(self))  # ask the next player if they call Bs
 
+    def calculateBs(self):
+        """The Cpu method to guess whether the player was honest or not and choose whether to call bs or not."""
+        if self.verbose:
+            print(self.name + " calculating probability of bs")
+        if self.log is not None:
+            self.log.write(self.name + ' calculating probability of bs')
+        if self.world.getCurrentPlayer().getnumplayed() + self.countCardsByNum(self.world.getTurnNum()) > 4:
+            # if the number of cards played and the number of honest cards self has add up to more than 4, then
+            # the current player must have been lying
+            if self.verbose:
+                print(self.name + " knows the player must be lying.")
+            if self.log is not None:
+                self.log.write(self.name + " knows the player must be lying.")
+            self.world.checkBs(self)
+        else:
+            print(self.name + " can't be certain that the player is lying.")
+            self.world.askBs(self.world.getNextPlayer(self))  # MOVE THIS LINE LATER
+        if self.risk * 2 >= self.world.getDeckLen():
+            pass  # write code here
 
-if __name__ == "__main__":
+
+if player_tests:
     print('this worked')
     p = Player("joe", True, logfile=open('test.txt', 'w'))
     assert p.name == 'joe'
@@ -426,3 +477,22 @@ if __name__ == "__main__":
     root = Tk()
     player.createFrame(root, 1)
     root.mainloop()
+
+if cpu_tests:
+    import world
+    import card
+    this_world = world.World()
+    # tests to see what happens when a Cpu knows that the other player must be lying
+    this_world.createPlayer('a', True, 1, 1)
+    this_world.createPlayer('b', True, 1, 1)
+    this_world.createPlayer('c', True, 1, 1)
+    this_world.createPlayer('d', True, 1, 1)
+    this_world.getPlayerList()[0].addCards(
+        [card.Card(1, 2), card.Card(2, 1), card.Card(2, 2), card.Card(2, 3), card.Card(2, 4)])
+    this_world.getPlayerList()[1].addCards(
+        [card.Card(1, 3), card.Card(3, 1), card.Card(3, 2), card.Card(3, 3), card.Card(3, 4)])
+    this_world.getPlayerList()[2].addCards(
+        [card.Card(1, 4), card.Card(4, 1), card.Card(4, 2), card.Card(4, 3), card.Card(4, 4)])
+    this_world.getPlayerList()[3].addCards(
+        [card.Card(1, 1), card.Card(5, 1), card.Card(5, 2), card.Card(5, 3), card.Card(5, 4)])
+    this_world.createWindow()
