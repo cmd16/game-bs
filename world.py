@@ -96,6 +96,9 @@ class World:
                 break
         else:  # if somehow no player has the Ace of Clubs
             self.setCurrentPlayer(self.getPlayerList()[0])
+        for player in self.getPlayerList():  # initialize all the estimates
+            if isinstance(player, Cpu):
+                player.initialize_estimate()
         self.getCurrentPlayer().takeTurn()
 
     def incTurnNum(self):
@@ -241,9 +244,17 @@ class World:
         honesty = True  # assume the player told the truth, then change later if needed
         cards = []  # a local list of the cards the player played
         for i in range(defendant.getnumplayed()):
+            if self.verbose:
+                print('deck is now ' + str(self._deck))
+            if self.log is not None:
+                self.log.write('deck is now ' + str(self._deck))
             cards.append(self._deck[i])
             if self._deck[i].get_number() != self._turn_num:  # if the number of the card doesn't match the number that should have been played
                 honesty = False
+        if self.verbose:
+            print('cards are ' + str(cards))
+        if self.log is not None:
+            self.log.write('cards are ' + str(cards))
         self.updateMessage(str(cards))  # show a list of the cards that were played
         print(cards)
         time.sleep(2)
@@ -258,10 +269,16 @@ class World:
                 defendant.name, prosecutor.name))
             # check to see if the hand is empty
             defendant.checkHandLength()
+            for player in self.getPlayerList():
+                if isinstance(player, Cpu):
+                    player.add_estimate(prosecutor, [c.get_number() for c in cards])
         else:
             self.giveAllCards(defendant)
             self.updateMessage("%s was lying! The cards from the pile have been added to %s's hand." % (
                 defendant.name, defendant.name))
+            for player in self.getPlayerList():
+                if isinstance(player, Cpu):
+                    player.add_estimate(defendant, [c.get_number() for c in cards])
         # now it is next player's turn
         self.getNextPlayer(self.getCurrentPlayer()).takeTurn()
 
