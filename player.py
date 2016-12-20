@@ -3,15 +3,14 @@
 CS 106 Final Project: BS
 A class to represent players. Each player has a name and a hand of Cards."""
 
-# FIGURE OUT BUG: WITH CPU PLAYERS, SOMETIMES AFTER CHECKING BS, A PLAYER'S TURN IS SKIPPED (AND THE SHOWHAND BUTTON
-# IS NOT DISABLED
+# LEVEL 2 AND LEVEL 3 ARE CURRENTLY THE SAME. FIGURE OUT HOW TO DIFFERENTIATE
 
 """
 Documentation for AIs - bluffing:
     Difficulty level
         Play a random card
         Figure out which card they would need to play next and don’t play that, then pick a random card from all the others
-        Play whichever card they have the most of that they won’t play next # fix this?
+        Play whichever card they have the least of that they won’t play next # fix this?
         Play whichever card they will play last
         Play whichever card they will play last that there are the least of in the estimate dictionary
     Risk level
@@ -240,6 +239,9 @@ class Player:
         if self.numplayed > 1:  # if the player played more than one card, make the number word plural
             summary += "s"
         self.world.updateMessage(summary)
+        for player in self.world.getPlayerList():
+            if isinstance(player, Cpu):
+                player.add_pile([self.world.getTurnNum()] * self.numplayed)  # IMPLEMENT ADD_PILE
         self.world.askBs(self.world.getNextPlayer(self))  # ask the next player if they call Bs
 
     def checkBoxes(self):
@@ -340,6 +342,7 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
         self.verbose = verbose
         self.world = world
         self.estimate_dict = {}
+        self.pile_estimate = []
 
     def initialize_estimate(self):
         """Initialize the dictionary to hold the estimates of who has what cards"""
@@ -370,6 +373,22 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
             self.log.write(self.name + " removing " + str(num_seq) + " from " + player.name + "'s estimate\n")
         for num in num_seq:
             self.estimate_dict[player].remove(num)
+
+    def add_pile(self, num_seq):
+        """Add the numbers in num_seq to the estimate of the pile"""
+        if self.verbose:
+            print(self.name + " adding " + str(num_seq) + " to pile estimate")
+        if self.log is not None:
+            self.log.write(self.name + ' adding ' + str(num_seq) + " to pile estimate")
+        self.pile_estimate.extend(num_seq)
+
+    def reset_pile_estimate(self):
+        """Reset the estimate of the pile"""
+        if self.verbose:
+            print(self.name + " resetting pile estimate")
+        if self.log is not None:
+            self.log.write(self.name + " resetting the pile estimate")
+        self.pile_estimate = []
 
     def __str__(self):
         return self.name + ', ' + str(len(self.hand)) + ' cards, ' + 'difficulty level: ' + str(self.difficulty) \
@@ -467,12 +486,24 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
                     # HOLD OFF ON THIS
                     cards_played.extend(self.findCardsByNum(card_minilist[0]))
             elif self.difficulty == 3:
-                sys.exit('Cpu difficulty 3 not implemented yet')
                 next_num = self.world.getTurnNum() + self.world.getNumPlayers()
-                most_num = 0  # the number of the card that the Cpu has the most of
-                # FIX THIS
-                for j in range(len(self.tkhand)):
-                    pass
+                least = 0  # the number of the card that the Cpu has the most of
+                # FIX THIS LATER CHANGE WHAT LEVEL 3 DOES
+                if len(card_freq_list) > 1:  # if the length of the list is 1, then you don't want to remove items from it
+                    for item in card_freq_list:
+                        if item[0] == next_num:
+                            if self.verbose:
+                                print(self.name + " removing an item that would be played next: " + str(item))
+                            if self.log is not None:
+                                self.log.write(self.name + " removing an item that would be played next: " + str(item) + "\n")
+                            card_freq_list.remove(item)
+                card_minilist = random.choice(card_freq_list)  # pick a random card
+                if self.verbose:
+                    print(self.name + " random choice of " + str(card_minilist))
+                if self.log is not None:
+                    self.log.write(self.name + " random choice of " + str(card_minilist))
+                # HOLD OFF ON THIS
+                cards_played.extend(self.findCardsByNum(card_minilist[0]))
             if len(cards_played) == 0:
                 print("empty list. Trying again")
                 self.tkSelectHand()
@@ -498,6 +529,9 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
         if self.numplayed > 1:  # if the player played more than one card, make the number word plural
             summary += "s"
         self.world.updateMessage(summary)
+        for player in self.world.getPlayerList():
+            if isinstance(player, Cpu):
+                player.add_pile([self.world.getTurnNum()] * self.numplayed)
         self.world.askBs(self.world.getNextPlayer(self))  # ask the next player if they call Bs
 
     def calculateBs(self):
@@ -520,7 +554,7 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
         else:
             print(self.name + " can't be certain that the player is lying.")
         if self.risk * 2 >= self.world.getDeckLen():
-            if self.difficulty == 2:
+            if 2 <= self.difficulty <= 3:
                 if self.verbose:
                     print("Checking the estimate dictionary: " + str(self.estimate_dict))
                 if self.log is not None:
