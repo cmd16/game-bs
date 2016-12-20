@@ -98,7 +98,7 @@ class World:
             self.setCurrentPlayer(self.getPlayerList()[0])
         for player in self.getPlayerList():  # initialize all the estimates
             if isinstance(player, Cpu):
-                player.initialize_estimate()
+                pass  # player.initialize_estimate()
         self.getCurrentPlayer().takeTurn()
 
     def incTurnNum(self):
@@ -271,15 +271,19 @@ class World:
             defendant.checkHandLength()
             for player in self.getPlayerList():
                 if isinstance(player, Cpu):
-                    player.add_estimate(prosecutor, [c.get_number() for c in cards])
+                    pass
+                    # player.add_estimate(prosecutor, [c.get_number() for c in cards])
         else:
             self.giveAllCards(defendant)
             self.updateMessage("%s was lying! The cards from the pile have been added to %s's hand." % (
                 defendant.name, defendant.name))
             for player in self.getPlayerList():
                 if isinstance(player, Cpu):
-                    player.add_estimate(defendant, [c.get_number() for c in cards])
+                    pass
+                    # player.add_estimate(defendant, [c.get_number() for c in cards])
         # now it is next player's turn
+        print("current player is " + self.getCurrentPlayer().name)
+        print("next player is " + self.getNextPlayer(self.getCurrentPlayer()).name)
         self.getNextPlayer(self.getCurrentPlayer()).takeTurn()
 
     def askBs(self, player):

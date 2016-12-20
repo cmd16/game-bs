@@ -149,6 +149,11 @@ class Player:
 
     def takeTurn(self):
         """Gets player ready to take a turn"""
+        # PUTTING IN A TEMPORARY FIX
+        for player in self.world.getPlayerList():
+            if player.showhandbutton['state'] == NORMAL:
+                print('not my turn yet')
+                return
         if self.verbose:
             print(self.name, "Taking a turn")
         if self.log is not None:
@@ -334,37 +339,6 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
         self.pb = pb  # a boolean value. If this value is set to true, the cpu will tell you when it has succesfully lied
         self.verbose = verbose
         self.world = world
-        self.estimate_dict = {}
-        self.pile_estimate = []
-
-    def initialize_estimate(self):
-        """Initialize the estimate of which players have what cards. There is a dictionary that maps each player's name
-        to a list of their (suspected) cards"""
-        if self.verbose:
-            print(self.name + " initializing the estimate dictionary")
-        if self.log is not None:
-            self.log.write(self.name + " initializing the estimate dictionary\n")
-        for player in self.world.getPlayerList():
-            self.estimate_dict[player] = []
-
-    def add_estimate(self, player, num_seq):
-        """Add cards to the estimate"""
-        if self.difficulty > 1:
-            if self.verbose:
-                print(self.name + " adding " + str(num_seq) + " to " + player.name + "'s estimate")
-            if self.log is not None:
-                self.log.write(self.name + " adding " + str(num_seq) + " to " + player.name + "'s estimate\n")
-            self.estimate_dict[player].extend(num_seq)
-
-    def remove_estimate(self, player, num_seq):
-        """Remove cards from the estimate"""
-        if self.difficulty > 1:
-            if self.verbose:
-                print(self.name + " removing " + str(num_seq) + " from " + player.name + "'s estimate")
-            if self.log is not None:
-                self.log.write(self.name + " removing " + str(num_seq) + " from " + player.name + "'s estimate")
-            for num in num_seq:
-                self.estimate_dict[player].remove(num)
 
     def __str__(self):
         return self.name + ', ' + str(len(self.hand)) + ' cards, ' + 'difficulty level: ' + str(self.difficulty) \
@@ -441,6 +415,7 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
                 # HOLD OFF ON THIS
                 cards_played.extend(self.findCardsByNum(card_minilist[0]))  # find all the cards of that number and play them
             elif self.difficulty == 2:
+                sys.exit('Not implemented yet')
                 next_num = (self.world.getTurnNum() + self.world.getNumPlayers()) % 14  # calculate which card would be played next
                 if self.verbose:
                     print(self.name + ' would play ' + str(next_num) + ' next.')
@@ -505,6 +480,7 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
             print(self.name + " can't be certain that the player is lying.")
         if self.risk * 2 >= self.world.getDeckLen():
             if self.difficulty == 2:
+                sys.exit('not implemented yet')
                 if self.verbose:
                     print("Checking the estimate dictionary: " + str(self.estimate_dict))
                 if self.log is not None:
