@@ -98,7 +98,7 @@ class World:
             self.setCurrentPlayer(self.getPlayerList()[0])
         for player in self.getPlayerList():  # initialize all the estimates
             if isinstance(player, Cpu):
-                pass  # player.initialize_estimate()
+                player.initialize_estimate()
         self.getCurrentPlayer().takeTurn()
 
     def incTurnNum(self):
@@ -243,11 +243,14 @@ class World:
         prosecutor.BSConfig(DISABLED)
         honesty = True  # assume the player told the truth, then change later if needed
         cards = []  # a local list of the cards the player played
-        for i in range(defendant.getnumplayed()):
+        print(defendant.name + " played " + str(defendant.getnumplayed()) + " cards ") # ERROR WITH NUMPLAYED
+        for i in range(-1, - defendant.getnumplayed() - 1, -1):
             if self.verbose:
                 print('deck is now ' + str(self._deck))
             if self.log is not None:
                 self.log.write('deck is now ' + str(self._deck))
+            if self.verbose:
+                print("adding " + str(self._deck[i]))
             cards.append(self._deck[i])
             if self._deck[i].get_number() != self._turn_num:  # if the number of the card doesn't match the number that should have been played
                 honesty = False
@@ -272,7 +275,7 @@ class World:
             for player in self.getPlayerList():
                 if isinstance(player, Cpu):
                     pass
-                    # player.add_estimate(prosecutor, [c.get_number() for c in cards])
+                    player.add_estimate(prosecutor, [c.get_number() for c in cards])
         else:
             self.giveAllCards(defendant)
             self.updateMessage("%s was lying! The cards from the pile have been added to %s's hand." % (
@@ -280,7 +283,7 @@ class World:
             for player in self.getPlayerList():
                 if isinstance(player, Cpu):
                     pass
-                    # player.add_estimate(defendant, [c.get_number() for c in cards])
+                    player.add_estimate(defendant, [c.get_number() for c in cards])
         # now it is next player's turn
         print("current player is " + self.getCurrentPlayer().name)
         print("next player is " + self.getNextPlayer(self.getCurrentPlayer()).name)

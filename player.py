@@ -13,7 +13,7 @@ Documentation for AIs - bluffing:
         Figure out which card they would need to play next and don’t play that, then pick a random card from all the others
         Play whichever card they have the most of that they won’t play next # fix this?
         Play whichever card they will play last
-        Play whichever card they will play last that they have the most of # fix this?
+        Play whichever card they will play last that there are the least of in the estimate dictionary
     Risk level
         Always play one card
         Sometimes play two cards
@@ -152,7 +152,7 @@ class Player:
         # PUTTING IN A TEMPORARY FIX
         for player in self.world.getPlayerList():
             if player.showhandbutton['state'] == NORMAL:
-                print('not my turn yet')
+                print('Not ' + self.name + "'s turn yet")
                 return
         if self.verbose:
             print(self.name, "Taking a turn")
@@ -339,6 +339,37 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
         self.pb = pb  # a boolean value. If this value is set to true, the cpu will tell you when it has succesfully lied
         self.verbose = verbose
         self.world = world
+        self.estimate_dict = {}
+
+    def initialize_estimate(self):
+        """Initialize the dictionary to hold the estimates of who has what cards"""
+        if self.verbose:
+            print(self.name + " initializing estimate dictionary")
+        if self.log is not None:
+            self.log.write(self.name + " initializing estimate dictionary\n")
+        for player in self.world.getPlayerList():
+            self.estimate_dict[player] = []
+        if self.verbose:
+            print(self.name + " estimate dictionary is " + str(self.estimate_dict))
+        if self.log is not None:
+            self.log.write(self.name + " estimate dictionary is " + str(self.estimate_dict) + '\n')
+
+    def add_estimate(self, player, num_seq):
+        """Add a number to the player's estimate"""
+        if self.verbose:
+            print(self.name + " adding " + str(num_seq) + " to " + player.name + "'s estimate")
+        if self.log is not None:
+            self.log.write(self.name + " adding " + str(num_seq) + " to " + player.name + "'s estimate\n")
+        self.estimate_dict[player].extend(num_seq)
+
+    def remove_estimate(self, player, num_seq):
+        """Remove a number from the player's estimate"""
+        if self.verbose:
+            print(self.name + " removing " + str(num_seq) + " from " + player.name + "'s estimate")
+        if self.log is not None:
+            self.log.write(self.name + " removing " + str(num_seq) + " from " + player.name + "'s estimate\n")
+        for num in num_seq:
+            self.estimate_dict[player].remove(num)
 
     def __str__(self):
         return self.name + ', ' + str(len(self.hand)) + ' cards, ' + 'difficulty level: ' + str(self.difficulty) \
@@ -415,7 +446,6 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
                 # HOLD OFF ON THIS
                 cards_played.extend(self.findCardsByNum(card_minilist[0]))  # find all the cards of that number and play them
             elif self.difficulty == 2:
-                sys.exit('Not implemented yet')
                 next_num = (self.world.getTurnNum() + self.world.getNumPlayers()) % 14  # calculate which card would be played next
                 if self.verbose:
                     print(self.name + ' would play ' + str(next_num) + ' next.')
@@ -429,6 +459,13 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
                             if self.log is not None:
                                 self.log.write(self.name + " removing an item that would be played next: " + str(item) + "\n")
                             card_freq_list.remove(item)  # get rid of cards that would be played next turn
+                    card_minilist = random.choice(card_freq_list)  # pick a random card
+                    if self.verbose:
+                        print(self.name + " random choice of " + str(card_minilist))
+                    if self.log is not None:
+                        self.log.write(self.name + " random choice of " + str(card_minilist))
+                    # HOLD OFF ON THIS
+                    cards_played.extend(self.findCardsByNum(card_minilist[0]))
             elif self.difficulty == 3:
                 sys.exit('Cpu difficulty 3 not implemented yet')
                 next_num = self.world.getTurnNum() + self.world.getNumPlayers()
@@ -436,6 +473,9 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
                 # FIX THIS
                 for j in range(len(self.tkhand)):
                     pass
+            if len(cards_played) == 0:
+                print("empty list. Trying again")
+                self.tkSelectHand()
             if self.verbose:
                 print(self.name, "played " + str(cards_played))
             if self.log is not None:
@@ -450,6 +490,7 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
         if self.log is not None:
             self.log.write(self.name + " playing " + str(card_seq))
         self.numplayed = len(card_seq)
+        print(self.name + " numplayed is " + str(self.getnumplayed()))  # DEBUG
         self.world.playCards(self, card_seq)
         self.tkConfigureShowHand(DISABLED)
         summary = self.name + " played " + numToWord(self.numplayed) + " " + cardNumToStr(
@@ -480,12 +521,15 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
             print(self.name + " can't be certain that the player is lying.")
         if self.risk * 2 >= self.world.getDeckLen():
             if self.difficulty == 2:
-                sys.exit('not implemented yet')
                 if self.verbose:
                     print("Checking the estimate dictionary: " + str(self.estimate_dict))
                 if self.log is not None:
                     self.log.write("Checking the estimate dictionary: " + str(self.estimate_dict))
                 if self.world.getTurnNum() not in self.estimate_dict[self.world.getCurrentPlayer()]:
+                    if self.verbose:
+                        print(self.name + " did not find the given number in the player's estimate dictionary")
+                    if self.log is not None:
+                        self.log.write(self.name + " did not find the given number in the player's estimate dictionary\n")
                     self.world.checkBs(self)
         self.world.askBs(self.world.getNextPlayer(self))  # MOVE THIS LINE LATER
 
