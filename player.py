@@ -212,9 +212,8 @@ class Player:
                     print(self.name, 'found a selected card:', self.tkhand[idx][0])
                 if self.log is not None:
                     self.log.write(self.name + ' found a selected card: %s\n' % self.tkhand[idx][0])
-                # put in a method to remove the card from the hand and add it to the deck world's deck. Then change checkBs
-                cards_played.append(self.tkhand[idx][0])  # ok so this is what I need to change
-                self.hand.remove(self.tkhand[idx][0])  # so this function didn't actually work
+                cards_played.append(self.tkhand[idx][0])
+                self.hand.remove(self.tkhand[idx][0])
                 #  so I need to change this
                 self.numplayed += 1
                 if self.tkhand[idx][0].get_number() != self.world.getTurnNum():
@@ -382,13 +381,15 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
             self.log.write(self.name + ' adding ' + str(num_seq) + " to pile estimate")
         self.pile_estimate.extend(num_seq)
 
-    def reset_pile_estimate(self):
-        """Reset the estimate of the pile"""
-        if self.verbose:
-            print(self.name + " resetting pile estimate")
-        if self.log is not None:
-            self.log.write(self.name + " resetting the pile estimate")
-        self.pile_estimate = []
+    def move_pile_estimate(self, player):
+        """Move the estimate of the pile to the estimate for the given player. Only do this if self's difficulty is 3 or more."""
+        if self.difficulty > 2:
+            if self.verbose:
+                print(self.name + " moving pile estimate to " + player.name + "'s hand.")
+            if self.log is not None:
+                self.log.write((self.name + " moving pile estimate to " + player.name + "'s hand."))
+            self.add_estimate(player, self.pile_estimate)
+            self.pile_estimate = []
 
     def __str__(self):
         return self.name + ', ' + str(len(self.hand)) + ' cards, ' + 'difficulty level: ' + str(self.difficulty) \
@@ -486,7 +487,7 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
                     # HOLD OFF ON THIS
                     cards_played.extend(self.findCardsByNum(card_minilist[0]))
             elif self.difficulty == 3:
-                next_num = self.world.getTurnNum() + self.world.getNumPlayers()
+                next_num = (self.world.getTurnNum() + self.world.getNumPlayers()) % 14
                 least = 0  # the number of the card that the Cpu has the most of
                 # FIX THIS LATER CHANGE WHAT LEVEL 3 DOES
                 if len(card_freq_list) > 1:  # if the length of the list is 1, then you don't want to remove items from it
@@ -504,8 +505,21 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
                     self.log.write(self.name + " random choice of " + str(card_minilist))
                 # HOLD OFF ON THIS
                 cards_played.extend(self.findCardsByNum(card_minilist[0]))
+            elif self.difficulty == 4:
+                next_numbers = []
+                while True:  # find and record the order of which cards self will have to play next
+                    next_num = (self.world.getTurnNum() + self.world.getNumPlayers()) % 14
+                    if next_num == self.world.getTurnNum():
+                        break
+                    else:
+                        next_numbers.append(next_num)
+                for idx in range(-1, - len(next_numbers) - 1, -1):
+                    for couple in card_freq_list:
+                        if couple[0] == next_numbers[idx]:
+                            cards_played.extend(self.findCardsByNum(couple[0]))
+                            break
             if len(cards_played) == 0:
-                print("empty list. Trying again")
+                print("ERROR ERROR empty list. Trying again")
                 self.tkSelectHand()
             if self.verbose:
                 print(self.name, "played " + str(cards_played))
@@ -565,7 +579,11 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
                     if self.log is not None:
                         self.log.write(self.name + " did not find the given number in the player's estimate dictionary\n")
                     self.world.checkBs(self)
-        self.world.askBs(self.world.getNextPlayer(self))  # MOVE THIS LINE LATER
+                else:  # assume the player played honestly and remove the honest numbers from the player's estimate
+                    entry = self.estimate_dict[self.world.getCurrentPlayer()]  # stored in a variable for better readability
+                    for n in entry.count(self.world.getTurnNum()):
+                        entry.remove(n)
+        self.world.askBs(self.world.getNextPlayer(self))  # MOVE THIS LINE LATER? WHY WOULD I MOVE IT LATER?
 
 
 if player_tests:

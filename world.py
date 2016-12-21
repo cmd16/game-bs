@@ -274,7 +274,7 @@ class World:
             defendant.checkHandLength()
             for player in self.getPlayerList():
                 if isinstance(player, Cpu):
-                    player.reset_pile_estimate()
+                    player.move_pile_estimate(prosecutor)
                     player.add_estimate(prosecutor, [c.get_number() for c in cards])
         else:
             self.giveAllCards(defendant)
@@ -282,7 +282,7 @@ class World:
                 defendant.name, defendant.name))
             for player in self.getPlayerList():
                 if isinstance(player, Cpu):
-                    player.reset_pile_estimate()
+                    player.move_pile_estimate(defendant)
                     player.add_estimate(defendant, [c.get_number() for c in cards])
         # now it is next player's turn
         print("current player is " + self.getCurrentPlayer().name)
