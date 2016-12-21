@@ -3,7 +3,7 @@
 CS 106 Final Project: BS
 A class to represent players. Each player has a name and a hand of Cards."""
 
-# LEVEL 2 AND LEVEL 3 ARE CURRENTLY THE SAME. FIGURE OUT HOW TO DIFFERENTIATE
+# ADJUST CALLING BS SO THAT RISK ALSO MEANS THAT IF THE PLAYER HAS TOO MANY CARDS ALREADY THEY WON'T CALL BS
 
 """
 Documentation for AIs - bluffing:
@@ -49,6 +49,7 @@ Documentation for AIs - calling BS:
 from tkinter import *
 from global_functions import *
 import random
+import cardfrequency
 
 player_tests = False
 cpu_tests = False  # look at later
@@ -338,10 +339,10 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
         # if a cpu doesn't know for sure that another player is lying,
         # their risk value determines how likely they are to accuse the player
         self.pb = pb  # a boolean value. If this value is set to true, the cpu will tell you when it has succesfully lied
-        self.verbose = verbose
         self.world = world
         self.estimate_dict = {}
         self.pile_estimate = []
+        self.freq_obj = cardfrequency.CardFreq(self, self.verbose, self.log)
 
     def initialize_estimate(self):
         """Initialize the dictionary to hold the estimates of who has what cards"""
@@ -415,6 +416,21 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
             self.log.write(self.name + " counting all cards of number " + str(number) + "\n")
         return len(self.findCardsByNum(number))
 
+    def getNextNumbers(self):
+        """find and return the order of which cards self will have to play next"""
+        next_numbers = []
+        iteration = 0
+        # WHY DIDN'T THE WHILE TRUE LOOP WITH A BREAK WORK?
+        next_num = self.world.getTurnNum()
+        while iteration < 13:
+            next_num = (next_num + self.world.getNumPlayers()) % 14
+            if next_num == self.world.getTurnNum():
+                break
+            else:
+                next_numbers.append(next_num)
+            iteration += 1
+        return next_numbers
+
     def tkSelectHand(self):
         """The method to select cards. Starts out same as regular players, then does calculations."""
         if self.verbose:
@@ -438,86 +454,35 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
             if self.log is not None:
                 self.log.write(self.name + " bluffing")
             # num_cards_to_play = random.randint(1, self.risk)  # choose how many cards to play this round
-            card_num_list = [x.get_number() for x in self.hand]  # create a list to hold the cards and how many of each card there is
-            card_freq_list = []
-            for num in range(1, 15):
-                count = card_num_list.count(num)
-                if 0 < count <= self.risk:
-                    card_freq_list.append([num, count])  # append the number of the card and the frequency of that card
-            if len(card_freq_list) == 0:  # if there aren't any cards with a low enough frequency, just get all the cards
-                for num in range(1, 15):
-                    count = card_num_list.count(num)
-                    if count > 0:
-                        card_freq_list.append([num, count])
-            if self.verbose:
-                print(self.name + ' card num list: ' + str(card_num_list))
-            if self.log is not None:
-                self.log.write(self.name + ' card num list: ' + str(card_num_list))
-            if self.verbose:
-                print(self.name + ' card frequency list: ' + str(card_freq_list))
-            if self.log is not None:
-                self.log.write(self.name + ' card frequency list: ' + str(card_freq_list))
+            self.freq_obj.updateSelf()
+            # FIX LATER
             if self.difficulty == 1:
-                card_minilist = random.choice(card_freq_list)  # pick a random card
+                card_minilist = random.choice(self.freq_obj.returnItemList())  # pick a random card
                 if self.verbose:
                     print(self.name + " random choice of " + str(card_minilist))
                 if self.log is not None:
                     self.log.write(self.name + " random choice of " + str(card_minilist))
-                # HOLD OFF ON THIS
                 cards_played.extend(self.findCardsByNum(card_minilist[0]))  # find all the cards of that number and play them
             elif self.difficulty == 2:
-                next_num = (self.world.getTurnNum() + self.world.getNumPlayers()) % 14  # calculate which card would be played next
-                if self.verbose:
-                    print(self.name + ' would play ' + str(next_num) + ' next.')
-                if self.log is not None:
-                    self.log.write(self.name + ' would play ' + str(next_num) + ' next.\n')
-                if len(card_freq_list) > 1:  # if the length of the list is 1, then you don't want to remove items from it
-                    for item in card_freq_list:
-                        if item[0] == next_num:
-                            if self.verbose:
-                                print(self.name + " removing an item that would be played next: " + str(item))
-                            if self.log is not None:
-                                self.log.write(self.name + " removing an item that would be played next: " + str(item) + "\n")
-                            card_freq_list.remove(item)  # get rid of cards that would be played next turn
-                    card_minilist = random.choice(card_freq_list)  # pick a random card
+                    card_minilist = random.choice(self.freq_obj.getNotNextHonest())  # pick a random card that won't be played next turn
                     if self.verbose:
                         print(self.name + " random choice of " + str(card_minilist))
                     if self.log is not None:
                         self.log.write(self.name + " random choice of " + str(card_minilist))
-                    # HOLD OFF ON THIS
                     cards_played.extend(self.findCardsByNum(card_minilist[0]))
             elif self.difficulty == 3:
                 next_num = (self.world.getTurnNum() + self.world.getNumPlayers()) % 14
                 least = 0  # the number of the card that the Cpu has the most of
-                # FIX THIS LATER CHANGE WHAT LEVEL 3 DOES
-                if len(card_freq_list) > 1:  # if the length of the list is 1, then you don't want to remove items from it
-                    for item in card_freq_list:
-                        if item[0] == next_num:
-                            if self.verbose:
-                                print(self.name + " removing an item that would be played next: " + str(item))
-                            if self.log is not None:
-                                self.log.write(self.name + " removing an item that would be played next: " + str(item) + "\n")
-                            card_freq_list.remove(item)
-                card_minilist = random.choice(card_freq_list)  # pick a random card
+                card_minilist = random.choice(self.freq_obj.getLeastNotNextHonest())  # pick a random card that won't
+                # be played next that the player has the least of
                 if self.verbose:
                     print(self.name + " random choice of " + str(card_minilist))
                 if self.log is not None:
                     self.log.write(self.name + " random choice of " + str(card_minilist))
-                # HOLD OFF ON THIS
                 cards_played.extend(self.findCardsByNum(card_minilist[0]))
-            elif self.difficulty == 4:
-                next_numbers = []
-                while True:  # find and record the order of which cards self will have to play next
-                    next_num = (self.world.getTurnNum() + self.world.getNumPlayers()) % 14
-                    if next_num == self.world.getTurnNum():
-                        break
-                    else:
-                        next_numbers.append(next_num)
-                for idx in range(-1, - len(next_numbers) - 1, -1):
-                    for couple in card_freq_list:
-                        if couple[0] == next_numbers[idx]:
-                            cards_played.extend(self.findCardsByNum(couple[0]))
-                            break
+            elif self.difficulty >= 4:  # CHANGE THIS SO THAT DIFFICULTY 5 HAS DIFFERENT CODE
+                couple = self.freq_obj.getLastHonest()  # find the card that the player will play last
+                cards_played.extend(self.findCardsByNum(couple[0]))
             if len(cards_played) == 0:
                 print("ERROR ERROR empty list. Trying again")
                 self.tkSelectHand()
@@ -568,7 +533,7 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
         else:
             print(self.name + " can't be certain that the player is lying.")
         if self.risk * 2 >= self.world.getDeckLen():
-            if 2 <= self.difficulty <= 3:
+            if 2 <= self.difficulty <= 5:  # MAKE THE BLUFFING SMARTER FOR HIGHER DIFFICULTIES
                 if self.verbose:
                     print("Checking the estimate dictionary: " + str(self.estimate_dict))
                 if self.log is not None:
@@ -580,9 +545,13 @@ class Cpu(Player):  # a cpu is still a player, so it inherits from the Player cl
                         self.log.write(self.name + " did not find the given number in the player's estimate dictionary\n")
                     self.world.checkBs(self)
                 else:  # assume the player played honestly and remove the honest numbers from the player's estimate
+                    if self.verbose:
+                        print(self.name + " assuming the player played honestly")
+                    if self.log is not None:
+                        self.log.write(self.name + " assuming the player played honestly")
                     entry = self.estimate_dict[self.world.getCurrentPlayer()]  # stored in a variable for better readability
-                    for n in entry.count(self.world.getTurnNum()):
-                        entry.remove(n)
+                    for n in range(entry.count(self.world.getTurnNum())):
+                        entry.remove(self.world.getTurnNum())
         self.world.askBs(self.world.getNextPlayer(self))  # MOVE THIS LINE LATER? WHY WOULD I MOVE IT LATER?
 
 
